@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMART FACTORY SYSTEM</title>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kanit:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root { 
+            /* ธีมสี ขาว/ม่วง/เขียว สำหรับ Smart Factory System */
+            --bg-color: #F4F7FE; /* พื้นหลังสีเทาอมฟ้าอ่อนสบายตา */
+            --card-bg: #FFFFFF; /* การ์ดสีขาว */
+            --input-bg: #FFFFFF; /* ช่องกรอกข้อมูล */
+            --text-main: #2B3674; /* ตัวหนังสือหลักสีน้ำเงินเข้ม/ดำ */
+            --text-muted: #A3AED0; /* ตัวหนังสือรองสีเทา */
+            --accent-purple: #4318FF; /* สีม่วงหลักของแบรนด์ */
+            --accent-green: #05CD99; /* สีเขียวสำหรับความสำเร็จ/ปุ่มอนุมัติ */
+            --accent-red: #EE5D50; /* สีแดงสำหรับการตีกลับ/ลบ */
+            --accent-yellow: #FFCE20; /* สีเหลืองแจ้งเตือน */
+            --border-color: #E2E8F0; /* สีเส้นขอบอ่อนๆ */
+            --sidebar-bg: #FFFFFF; 
+            --sidebar-text: #2B3674;
+        }
+
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Inter', 'Kanit', sans-serif; margin: 0; padding: 0; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        .hidden { display: none !important; }
+        .flex-row { display: flex; gap: 10px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        
+        /* --- Topbar & Sidebar --- */
+        .topbar { position: sticky; top: 0; left: 0; width: 100%; height: 60px; background: transparent; display: flex; align-items: center; justify-content: center; z-index: 900; }
+        .topbar h2 { margin: 0; font-size: 22px; font-weight: 700; color: var(--text-main); letter-spacing: 0.5px; }
+        .menu-btn { position: absolute; left: 20px; background: #FFF; color: var(--text-main); width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; border: 1px solid var(--border-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 20, 55, 0.5); z-index: 998; display: none; transition: 0.3s; }
+        .overlay.show { display: block; }
+        .sidebar { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: var(--sidebar-bg); z-index: 1000; transition: 0.3s ease-in-out; display: flex; flex-direction: column; border-top-right-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 5px 0 20px rgba(0,0,0,0.05); }
+        .sidebar.open { left: 0; }
+        .sidebar-header { padding: 20px 20px 10px 20px; }
+        .sidebar-menu { flex: 1; padding: 10px 25px; display: flex; flex-direction: column; gap: 25px; }
+        .sidebar-item { display: flex; align-items: center; gap: 15px; color: var(--sidebar-text); font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .sidebar-item i { font-size: 22px; width: 24px; text-align: center; color: var(--text-muted); }
+        .sidebar-footer { padding: 20px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .sidebar-user { display: flex; align-items: center; gap: 10px; }
+        .sidebar-user img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+        .sidebar-user-info { display: flex; flex-direction: column; }
+        .sidebar-user-info .name { color: var(--text-main); font-size: 14px; font-weight: 800; line-height: 1.2; }
+        .sidebar-user-info .id { font-size: 10px; font-weight: 600; color: var(--text-muted); }
+        .sidebar-powered { font-size: 8px; font-weight: 600; color: var(--text-muted); padding-left: 40px;}
+
+        /* --- Header Layout (Profile & Greeting) --- */
+        .app-header { padding: 10px 30px 0 30px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .greeting-text { font-size: 26px; font-weight: 800; background: linear-gradient(90deg, var(--accent-purple), #868CFF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2px; line-height: 1.1;}
+        .user-name-display { font-size: 18px; font-weight: 700; color: var(--text-main); }
+        .user-brand-display { font-size: 15px; font-weight: 500; color: var(--text-muted); }
+        .user-id-display { font-size: 12px; font-weight: 600; color: var(--accent-purple); margin-top: 5px; }
+        .avatar-container { text-align: center; }
+        .avatar-img { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); background: #FFF; padding: 2px; }
+        .tier-badge { background: #E4E7FE; color: var(--accent-purple); font-size: 11px; font-weight: 700; margin-top: 5px; padding: 4px 10px; border-radius: 10px; }
+
+        /* --- Status Banner (Customer Only) --- */
+        .status-banner { margin: 20px 30px; padding: 25px 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(67, 24, 255, 0.15); color: #FFF; }
+        .bg-banner-received { background: linear-gradient(135deg, #05CD99, #02A87C); }
+        .bg-banner-prep { background: linear-gradient(135deg, #FFCE20, #FF9800); box-shadow: 0 10px 20px rgba(255, 152, 0, 0.15); }
+        .bg-banner-prod { background: linear-gradient(135deg, #868CFF, #4318FF); }
+        .bg-banner-qc { background: linear-gradient(135deg, #4318FF, #11047A); }
+        .bg-banner-deliv { background: linear-gradient(135deg, #05CD99, #02A87C); box-shadow: 0 10px 20px rgba(5, 205, 153, 0.15); }
+        
+        /* --- Nav Squares (Customer) --- */
+        .nav-squares { display: flex; justify-content: space-between; padding: 0 30px; margin-bottom: 20px; gap: 15px; }
+        .nav-sq { flex: 1; background: var(--card-bg); border-radius: 16px; aspect-ratio: 1.1; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .nav-sq i { font-size: 32px; color: var(--text-muted); margin-bottom: 8px; }
+        .nav-sq span { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+        .nav-sq.active { background: var(--accent-purple); border-color: var(--accent-purple); box-shadow: 0 10px 20px rgba(67, 24, 255, 0.2); }
+        .nav-sq.active i, .nav-sq.active span { color: #FFF !important; }
+
+        /* --- Nav Buttons (Staff) --- */
+        .staff-nav-btns { display: flex; gap: 15px; padding: 0 30px; margin-bottom: 20px; }
+        .s-btn { flex: 1; padding: 15px; border-radius: 16px; font-weight: 700; font-size: 14px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .s-btn-create { background: var(--accent-purple); color: #FFF; }
+        .s-btn-all { background: var(--accent-green); color: #FFF; }
+        .s-btn-inactive { background: #FFF; color: var(--text-muted); border: 1px solid var(--border-color); box-shadow: none; }
+
+        /* --- Content Container --- */
+        .content-area { padding: 0 30px 20px 30px; min-height: calc(100vh - 350px); display: flex; flex-direction: column; }
+
+        /* --- Overview Stats --- */
+        .stats-container { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
+        .stat-box { flex: 1; background: var(--card-bg); border-radius: 16px; padding: 20px 10px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .stat-num { font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 5px; }
+        .stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+
+        /* --- Global Footer --- */
+        .global-footer { padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+        .global-footer img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; background-color: #FFF; }
+        .global-footer div { font-size: 11px; font-weight: 500; color: var(--text-muted); }
+
+        /* --- Inputs & Elements --- */
+        .input-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; margin-top: 15px; font-weight: 700; }
+        input, select, textarea { width: 100%; padding: 14px 16px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 16px; color: var(--text-main); font-family: 'Inter', 'Kanit', sans-serif; font-size: 14px; font-weight: 500; outline: none; box-sizing: border-box; transition: 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent-purple); box-shadow: 0 0 0 3px rgba(67, 24, 255, 0.1); }
+        input[type="date"] { box-sizing: border-box; width: 100%; display: block; max-width: 100%; }
+        input::placeholder, textarea::placeholder { color: #C4C4C4; font-weight: 400; }
+        .dark-input { background: #FFF; color: var(--text-main); } 
+        .search-bar { flex: 1; background: #FFF; border-radius: 16px; padding: 15px 20px; display: flex; align-items: center; border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .search-bar input { background: transparent; border: none; color: var(--text-main); padding: 0; font-size: 15px; width: 100%; box-sizing: border-box; box-shadow: none;}
+        .search-bar input:focus { box-shadow: none; }
+
+        /* --- Login Form Input --- */
+        .login-input { background: #FFF; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 14px; width: 100%; box-sizing: border-box; }
+        .login-input::placeholder { color: #C4C4C4; font-weight: 400; }
+
+        /* --- Buttons --- */
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 16px; color: white; font-weight: 700; cursor: pointer; font-size: 14px; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.2s; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-outline { background: #FFF; border: 1.5px solid var(--accent-purple); color: var(--accent-purple); box-shadow: none; }
+        .btn-green { background: var(--accent-green); color: #FFF; box-shadow: 0 4px 10px rgba(5, 205, 153, 0.2); }
+        .btn-dark { background: var(--text-muted); color: #FFF; box-shadow: none; }
+        .btn-pink { background: var(--accent-purple); color: #FFF; box-shadow: 0 4px 15px rgba(67, 24, 255, 0.2); } 
+
+        /* --- Orders Card & Stepper --- */
+        .order-card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.04); border: 1px solid var(--border-color); }
+        
+        .stepper-wrapper { display: flex; justify-content: space-between; margin: 25px 0 10px 0; position: relative; }
+        .step-col { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .step-line { position: absolute; top: 10px; left: 50%; width: 100%; height: 3px; z-index: 1; background: #E2E8F0; }
+        .step-circle { width: 22px; height: 22px; border-radius: 50%; z-index: 2; margin-bottom: 8px; background: #E2E8F0; border: 2px solid #FFF; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .step-name { font-size: 8px; font-weight: 700; text-align: center; line-height: 1.1; width: 120%; color: var(--text-muted); }
+        .step-date { font-size: 8px; color: var(--text-muted); margin-top: 2px; text-align:center; }
+
+        /* Collapse Animation */
+        .card-body-collapse { overflow: hidden; transition: max-height 0.3s ease-out; max-height: 0; }
+        .card-body-collapse.open { max-height: 3000px; transition: max-height 0.5s ease-in; }
+        .chevron { transition: transform 0.3s ease; color: var(--text-muted); }
+        .chevron.up { transform: rotate(180deg); color: var(--accent-purple); }
+
+        /* Scroll Box for Terms */
+        .scroll-box { max-height: 300px; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; }
+        .scroll-box::-webkit-scrollbar { width: 5px; }
+        .scroll-box::-webkit-scrollbar-track { background: #F4F7FE; border-radius: 5px; }
+        .scroll-box::-webkit-scrollbar-thumb { background: #C4C4C4; border-radius: 5px; }
+
+        /* --- Modals --- */
+        .full-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 950; display: none; overflow-y: auto; padding-bottom: 40px; }
+        .full-view.show { display: block; }
+        .modal-center { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 20, 55, 0.6); z-index: 1001; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px); }
+        .modal-center.show { display: flex; }
+        .modal-box { width: 100%; max-width: 500px; background: #FFF; padding: 25px; border-radius: 24px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.1); position: relative; }
+        
+        /* Modal Scroll Content & Language Tabs */
+        .modal-content-scroll { max-height: 60vh; overflow-y: auto; padding-right: 10px; margin-bottom: 10px; font-size: 13px; color: var(--text-main); line-height: 1.6; text-align: left; }
+        .modal-content-scroll h4 { color: var(--accent-purple); font-size: 15px; margin-top: 15px; margin-bottom: 5px; font-weight: 700; }
+        .modal-content-scroll ul { padding-left: 20px; margin-top: 5px; margin-bottom: 10px; color: var(--text-muted); }
+        .modal-content-scroll li { margin-bottom: 5px; }
+        .modal-content-scroll p { color: var(--text-muted); }
+        .lang-tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; background: #F4F7FE; padding: 5px; border-radius: 12px; }
+        .btn-lang { flex: 1; padding: 8px; background: transparent; color: var(--text-muted); border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px; text-align: center; transition: 0.2s; border: none;}
+        .btn-lang.active { background: #FFF; color: var(--accent-purple); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
+        /* Custom scrollbar for inner modals */
+        .modal-content-scroll::-webkit-scrollbar { width: 5px; }
+        .modal-content-scroll::-webkit-scrollbar-track { background: transparent; }
+        .modal-content-scroll::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 5px; }
+
+        /* Checkbox & Profile Forms */
+        .checkbox-container { display: flex; align-items: center; gap: 10px; margin-top: 10px; cursor: pointer; }
+        .checkbox-container input { display: none; }
+        .checkmark { width: 22px; height: 22px; background: #F0F4F8; border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: center; align-items: center; transition: 0.2s;}
+        .checkbox-container input:checked + .checkmark { background: var(--accent-purple); border-color: var(--accent-purple); }
+        .checkbox-container input:checked + .checkmark::after { content: '\f00c'; font-family: 'Font Awesome 5 Free'; font-weight: 900; color: #FFF; font-size: 12px; }
+        .checkbox-label { font-size: 13px; color: var(--text-main); font-weight: 600; }
+        .ep-input { background: #FFF; border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 10px; color: var(--text-main); }
+        .ep-input::placeholder { color: #C4C4C4; }
+        .divider { border-top: 1px dashed var(--border-color); margin: 25px 0; }
+        
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 2000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <i class="fas fa-circle-notch fa-spin fa-2x" style="color:var(--accent-purple)"></i>
+        <div style="font-size:13px; color:var(--text-muted); margin-top:15px; font-weight: 600;">Loading Smart System...</div>
+    </div>
+
+    <div id="viewWelcome" class="content-area hidden" style="justify-content: center; align-items: center; min-height: 100vh; padding: 30px;">
+        <div style="background: #FFF; padding: 40px 30px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; box-sizing: border-box;">
+            <img id="logoWelcome" src="" alt="Logo" style="width: 90px; height: 90px; border-radius: 50%; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+            <h2 style="margin: 0 0 10px 0; font-size: 26px; color: var(--text-main); font-weight: 800;">Welcome</h2>
+            <div style="color: var(--text-muted); margin-bottom: 40px; font-size: 14px; font-weight: 500;">Please choose an option to continue.</div>
+            
+            <button class="btn btn-outline" style="margin-bottom: 15px;" onclick="showAuthView('viewLogin')">Log In</button>
+            <button class="btn btn-pink" onclick="showAuthView('viewRegister')">Sign Up</button>
+        </div>
+    </div>
+
+    <div id="viewLogin" class="content-area hidden" style="justify-content: center; align-items: center; min-height: 100vh; padding: 30px;">
+        <div style="background: #FFF; padding: 30px 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; box-sizing: border-box; position: relative;">
+            <button style="position: absolute; top: 25px; left: 25px; background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer;" onclick="showAuthView('viewWelcome')"><i class="fas fa-chevron-left"></i></button>
+            
+            <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
+                <img id="logoLogin" src="" alt="Logo" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+            </div>
+            <h3 style="text-align: center; font-size:28px; margin-bottom: 5px; color: var(--text-main); font-weight: 800;">Login</h3>
+            <div style="text-align: center; font-size:14px; color:var(--text-muted); margin-bottom: 30px;">Sign in to continue.</div>
+            
+            <label class="input-label">NAME</label>
+            <input type="text" id="loginName" class="login-input" placeholder="Your Full Name">
+            
+            <label class="input-label">EMAIL</label>
+            <input type="email" id="loginEmail" class="login-input" placeholder="hello@company.com">
+            
+            <button class="btn btn-pink" style="margin-top: 10px;" onclick="processLogin()">Sign in</button>
+            
+            <div style="text-align: center; margin-top: 25px; font-size: 13px; color: var(--text-muted); font-weight: 500;">
+                Don't have an account? <span style="color: var(--accent-purple); font-weight: 700; cursor: pointer;" onclick="showAuthView('viewRegister')">Sign Up</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewRegister" class="content-area hidden" style="justify-content: center; align-items: center; min-height: 100vh; padding: 30px;">
+        <div style="background: #FFF; padding: 30px 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; box-sizing: border-box; position: relative;">
+            <button style="position: absolute; top: 25px; left: 25px; background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer;" onclick="showAuthView('viewWelcome')"><i class="fas fa-chevron-left"></i></button>
+
+            <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
+                <img id="logoRegister" src="" alt="Logo" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+            </div>
+            <h3 style="text-align: center; font-size:26px; margin-bottom: 5px; color: var(--text-main); font-weight: 800;">Create Account</h3>
+            <div style="text-align: center; font-size:13px; color:var(--text-muted); margin-bottom: 30px; font-weight:500;">Already Registered? <span style="color: var(--accent-purple); font-weight: 700; cursor: pointer;" onclick="showAuthView('viewLogin')">Log in here.</span></div>
+            
+            <label class="input-label">NAME</label>
+            <input type="text" id="regName" placeholder="Your full name" class="login-input">
+            <label class="input-label">BRAND NAME</label>
+            <input type="text" id="regBrand" placeholder="Your brand name" class="login-input">
+            <label class="input-label">PHONE NUMBER</label>
+            <input type="tel" id="regPhone" placeholder="08xxxxxxxx" class="login-input">
+            <label class="input-label">EMAIL ADDRESS</label>
+            <input type="email" id="regEmail" placeholder="your@email.com" class="login-input">
+            
+            <button class="btn btn-pink" style="margin-top: 20px;" onclick="register()">Sign up</button>
+        </div>
+    </div>
+
+    <div id="viewApp" class="hidden">
+        
+        <div class="overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        <div class="sidebar" id="sidebarMenu">
+            <div class="sidebar-header">
+                <button class="menu-btn" style="position:static;" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+            <div class="sidebar-menu" id="sidebarMenuCustomer">
+                <div class="sidebar-item" onclick="switchTab('Orders')"><i class="fas fa-list-alt"></i> Orders</div>
+                <div class="sidebar-item" onclick="switchTab('Overview')"><i class="fas fa-chart-pie"></i> Overview</div>
+                <div class="sidebar-item" onclick="switchTab('Profile')"><i class="fas fa-user"></i> Profile</div>
+            </div>
+            <div class="sidebar-menu hidden" id="sidebarMenuStaff">
+                <div class="sidebar-item" id="sidebarMenuCreate" onclick="switchTab('CreateOrder')" style="color:var(--accent-purple);"><i class="fas fa-plus-circle"></i> Create Order</div>
+                <div class="sidebar-item" onclick="switchTab('StaffOrders')" style="color:var(--accent-green);"><i class="fas fa-tasks"></i> All Orders</div>
+            </div>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <img src="https://via.placeholder.com/100" id="sidebarPic">
+                    <div class="sidebar-user-info">
+                        <div class="name" id="sidebarName">Name</div>
+                        <div class="id" id="sidebarRole">Role</div>
+                    </div>
+                </div>
+                <div class="sidebar-powered">Powered by SMART FACTORY SYSTEM</div>
+            </div>
+        </div>
+
+        <div class="app-header">
+            <div style="position: relative;">
+                <button class="menu-btn" onclick="toggleSidebar()" style="position:relative; left:0; margin-bottom:15px;"><i class="fas fa-bars"></i></button>
+                <div class="greeting-text">Welcome back</div>
+                <div class="user-name-display" id="headerName">User Name</div>
+                <div class="user-brand-display" id="headerBrand">Brand name</div>
+                <div class="user-id-display" id="headerId">Customer ID: CUST-0000</div> 
+            </div>
+            <div class="avatar-container">
+                <img id="headerPic" src="https://via.placeholder.com/100" class="avatar-img">
+                <div class="tier-badge" id="headerTier"><i class="fas fa-crown"></i> VVIP</div>
+            </div>
+        </div>
+
+        <div id="customerElements" class="hidden">
+            <div id="statusBanner" class="status-banner bg-banner-prep hidden">
+                <div style="font-weight: 700; font-size: 15px; margin-bottom: 5px; opacity: 0.9;">Your Order Process Now</div>
+                <div style="font-size: 36px; font-weight: 800; line-height: 1.1; margin-bottom: 8px;" id="bannerStatusText">Preparation</div>
+                <div style="font-size: 13px; font-weight: 600; opacity: 0.9;" id="bannerOrderNo">ORD-2026-000</div>
+                <div style="font-size: 12px; font-weight: 600; margin-top: 20px; color: #FFF; opacity: 0.8;">Estimated Delivery:<br><span style="font-size:18px; font-weight: 700; opacity: 1;" id="bannerDate">00/00/0000</span></div>
+            </div>
+
+            <div class="nav-squares">
+                <div class="nav-sq" id="navSqOrders" onclick="switchTab('Orders')">
+                    <i class="fas fa-list-alt"></i><span>Orders</span>
+                </div>
+                <div class="nav-sq" id="navSqOverview" onclick="switchTab('Overview')">
+                    <i class="fas fa-chart-pie"></i><span>Overview</span>
+                </div>
+                <div class="nav-sq" id="navSqProfile" onclick="switchTab('Profile')">
+                    <i class="fas fa-user"></i><span>Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="staffElements" class="hidden" style="margin-top: 20px;">
+            <div class="staff-nav-btns">
+                <div class="s-btn s-btn-create" id="navBtnCreate" onclick="switchTab('CreateOrder')"><i class="fas fa-plus"></i> Create Order</div>
+                <div class="s-btn s-btn-all" id="navBtnAll" onclick="switchTab('StaffOrders')"><i class="fas fa-tasks"></i> All Orders</div>
+            </div>
+        </div>
+
+        <div id="tabOrders" class="content-area hidden">
+            <div class="flex-row" style="margin-bottom: 20px;">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search here" onkeyup="filterOrders()">
+                    <i class="fas fa-search" style="color:var(--text-muted);"></i>
+                </div>
+                <div style="position: relative; background: #FFF; border-radius: 16px; border: 1px solid var(--border-color); min-width: 55px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+                    <select id="statusFilter" onchange="filterOrders()" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; -webkit-appearance:none;">
+                        <option value="ALL">All Status</option>
+                        <option value="Order Received">Order Received</option>
+                        <option value="Preparation">Preparation</option>
+                        <option value="In Production">In Production</option>
+                        <option value="Quality Check">Quality Check</option>
+                        <option value="Delivered">Delivered</option>
+                    </select>
+                    <i class="fas fa-sliders-h" style="color:var(--accent-purple); font-size:18px;"></i>
+                </div>
+            </div>
+            
+            <div class="flex-between" style="margin-bottom: 15px;">
+                <span style="font-weight: 700; font-size: 16px; color: var(--text-main);">Transaction</span>
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Sort by <b style="color:var(--accent-purple);">Latest ▾</b></span>
+            </div>
+            
+            <div id="orderListContainer">Loading...</div>
+        </div>
+
+        <div id="tabOverview" class="content-area hidden">
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-num" style="color:var(--accent-yellow);" id="statConfirmed">0</div>
+                    <div class="stat-label">Confirmed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" style="color:var(--accent-purple);" id="statInProd">0</div>
+                    <div class="stat-label">In Production</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" style="color:var(--accent-green);" id="statDelivered">0</div>
+                    <div class="stat-label">Delivered</div>
+                </div>
+            </div>
+            <div style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:20px; font-weight: 500;">Summary of your order process</div>
+        </div>
+
+        <div id="tabProfile" class="content-area hidden">
+            <div style="background:#FFF; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.02); border-radius: 16px; padding: 15px 20px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; cursor: pointer;" onclick="openEditProfile()">
+                <div style="background: #F4F7FE; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--accent-purple); font-size: 18px;"><i class="fas fa-user-edit"></i></div>
+                <div style="font-size: 16px; font-weight: 700; color: var(--text-main);">Edit Profile</div>
+            </div>
+            <h4 style="margin: 15px 0 15px 5px; color:var(--text-main); font-size:16px; font-weight: 800;">General Settings</h4>
+            
+            <div style="background:#FFF; border:1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.02); border-radius: 16px; margin-bottom: 20px; overflow:hidden;">
+                <div style="padding: 16px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); cursor: pointer;" onclick="openModal('modalAboutUs')">
+                    <div style="background: #F4F7FE; width: 38px; height: 38px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; color: var(--accent-purple);"><i class="fas fa-info-circle"></i></div>
+                    <div style="color: var(--text-main); font-weight: 600; font-size:14px;">About us</div>
+                    <i class="fas fa-chevron-right" style="margin-left: auto; color: var(--text-muted); font-size: 12px;"></i>
+                </div>
+                <div style="padding: 16px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); cursor: pointer;" onclick="openModal('modalTerms')">
+                    <div style="background: #F4F7FE; width: 38px; height: 38px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; color: var(--accent-purple);"><i class="fas fa-file-contract"></i></div>
+                    <div style="color: var(--text-main); font-weight: 600; font-size:14px;">Terms & Conditions</div>
+                    <i class="fas fa-chevron-right" style="margin-left: auto; color: var(--text-muted); font-size: 12px;"></i>
+                </div>
+                <div style="padding: 16px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer;" onclick="openModal('modalPrivacy')">
+                    <div style="background: #F4F7FE; width: 38px; height: 38px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 16px; color: var(--accent-purple);"><i class="fas fa-shield-alt"></i></div>
+                    <div style="color: var(--text-main); font-weight: 600; font-size:14px;">Privacy Policy</div>
+                    <i class="fas fa-chevron-right" style="margin-left: auto; color: var(--text-muted); font-size: 12px;"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabCreateOrder" class="content-area hidden">
+            <div class="order-card">
+                <h4 style="margin-top:0; color:var(--accent-purple); border-bottom:1px solid var(--border-color); padding-bottom:15px; font-size: 18px; font-weight: 800;">Create New Order</h4>
+                <label class="input-label">Phone Number</label><input type="tel" id="ordPhone" class="dark-input" placeholder="08xxxxxxxx">
+                <label class="input-label">Batch Code</label><input type="text" id="ordBatch" class="dark-input" placeholder="SF2026-001">
+                <div class="flex-row">
+                    <div style="flex:1"><label class="input-label">Style</label><select id="ordStyle" class="dark-input"></select></div>
+                    <div style="flex:1"><label class="input-label">Qty</label><input type="number" id="ordQty" class="dark-input" placeholder="100"></div>
+                </div>
+                <label class="input-label">Fabric</label><select id="ordFabric" class="dark-input"></select>
+                <label class="input-label">Est Delivery Date</label>
+                <div style="width: 100%; max-width: 100%; overflow: hidden;">
+                    <input type="date" id="ordDate" class="dark-input" style="width: 100%; max-width: 100%; box-sizing: border-box; display: block;">
+                </div>
+                <label class="input-label">Details</label><textarea id="ordDetail" rows="2" class="dark-input" placeholder="Additional details..."></textarea>
+                <label class="input-label">Work Order (Image/PDF)</label>
+                <input type="file" id="ordWoImage" accept="image/*,application/pdf" onchange="processImage(this, 'new_wo', 'wo')" class="dark-input" style="font-size:13px; padding: 10px;">
+                <div id="status-wo-new_wo" style="font-size:12px; margin-top:5px; display:none; font-weight: 600;"></div>
+                <button class="btn btn-pink" style="margin-top:25px;" onclick="createOrder()">Save & Notify Customer</button>
+            </div>
+        </div>
+
+        <div id="tabStaffOrders" class="content-area hidden">
+            <div class="flex-row" style="margin-bottom: 15px; align-items:center;">
+                <div class="search-bar" style="flex: 6; padding: 12px 15px;">
+                    <input type="text" id="staffSearch" placeholder="Search order, phone..." onkeyup="filterStaffList()" style="font-size:13px; margin:0;">
+                    <i class="fas fa-search" style="font-size:14px; color:var(--text-muted);"></i>
+                </div>
+                <select id="staffStatusFilter" onchange="filterStaffList()" class="dark-input" style="flex: 4; padding: 12px 10px; font-size:12px; margin:0; height:100%; font-weight: 600;">
+                    <option value="ACTIVE">⚡ Active Orders</option>
+                    <option value="ALL">📋 All Orders</option>
+                    <option value="Order Confirmation">1. Wait WO Appr</option>
+                    <option value="Work Order Review Stage">2. Wait Sample</option>
+                    <option value="Sampling Stage">3. Sample Review</option>
+                    <option value="Pre-Production Approved">4. Wait Prod</option>
+                    <option value="Bulk Production (50%)">5. In Prod/QC</option>
+                    <option value="Quality Control Passed">6. QC Pass/Ship</option>
+                </select>
+            </div>
+            <div id="staffTaskList">Loading...</div>
+        </div>
+
+        <div class="global-footer">
+            <img id="logoFooter" src="" alt="Logo" style="box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div>Powered by SMART FACTORY SYSTEM</div>
+        </div>
+    </div> 
+
+    <div id="viewEditProfile" class="full-view" style="background-color: var(--bg-color);">
+        <div style="display: flex; align-items: center; padding: 25px 30px 10px 30px; position:sticky; top:0; background:var(--bg-color); z-index:910;">
+            <button style="background:#FFF; border:1px solid var(--border-color); color:var(--text-main); font-size:18px; width:40px; height:40px; border-radius:50%; cursor:pointer; margin-right:15px; box-shadow:0 2px 10px rgba(0,0,0,0.02);" onclick="closeEditProfile()"><i class="fas fa-chevron-left"></i></button>
+            <h2 style="margin:0; font-size:22px; font-weight:800; color: var(--text-main);">Profile Settings</h2>
+        </div>
+        
+        <div style="padding: 0 30px;">
+            <div style="text-align:center; margin-bottom:25px; margin-top: 10px;">
+                <img id="epPic" src="https://via.placeholder.com/100" style="width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid #FFF; box-shadow: 0 5px 15px rgba(0,0,0,0.08);">
+                <h3 style="margin:15px 0 0 0; font-size:20px; color: var(--text-main); font-weight: 800;" id="epHeaderName">User Name</h3>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px; font-weight: 600;" id="epHeaderId">ID: CUST-0000</div>
+            </div>
+            
+            <div style="background: #FFF; padding: 25px 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <div style="background: #F4F7FE; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--accent-purple); font-size: 16px;"><i class="fas fa-user-edit"></i></div>
+                    <div style="font-size: 18px; font-weight: 800; color: var(--text-main);">Personal Info</div>
+                </div>
+
+                <label class="input-label" style="margin-top:0;">NAME*</label>
+                <input type="text" id="epName" class="ep-input">
+                <label class="input-label">BRAND NAME</label>
+                <input type="text" id="epBrand" class="ep-input">
+                <div class="flex-row">
+                    <div style="flex:1;"><label class="input-label">PHONE*</label><input type="tel" id="epPhone" class="ep-input"></div>
+                    <div style="flex:1;"><label class="input-label">EMAIL</label><input type="email" id="epEmail" class="ep-input"></div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div style="font-size: 14px; color: var(--text-main); font-weight: 800; margin-bottom: 15px;">Billing Address (For Invoice)</div>
+                <div class="flex-row">
+                    <div style="flex:1;"><label class="input-label">COMPANY NAME</label><input type="text" id="epBillCompany" class="ep-input"></div>
+                    <div style="flex:1;"><label class="input-label">TAX ID</label><input type="text" id="epBillTax" class="ep-input"></div>
+                </div>
+                <label class="input-label">ADDRESS*</label>
+                <input type="text" id="epBillAddress" class="ep-input">
+                <div class="flex-row">
+                    <div style="flex:1;"><label class="input-label">CITY / DISTRICT*</label><input type="text" id="epBillCity" class="ep-input"></div>
+                    <div style="flex:1;"><label class="input-label">PROVINCE*</label><input type="text" id="epBillProv" class="ep-input"></div>
+                </div>
+                <div class="flex-row">
+                    <div style="flex:1;"><label class="input-label">POSTAL CODE*</label><input type="text" id="epBillZip" class="ep-input"></div>
+                    <div style="flex:1;"><label class="input-label">COUNTRY*</label><input type="text" id="epBillCountry" value="Thailand" class="ep-input"></div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div style="font-size: 14px; color: var(--text-main); font-weight: 800; margin-bottom: 15px;">Shipping Address</div>
+                <label class="checkbox-container" style="margin-bottom: 20px;">
+                    <input type="checkbox" id="cbSameAsBill" onchange="toggleShippingForm()">
+                    <div class="checkmark"></div>
+                    <span class="checkbox-label">Same as Billing Address</span>
+                </label>
+
+                <div id="shipAddressFields">
+                    <div class="flex-row">
+                        <div style="flex:1;"><label class="input-label">RECIPIENT NAME</label><input type="text" id="epShipName" class="ep-input"></div>
+                        <div style="flex:1;"><label class="input-label">PHONE NO.</label><input type="tel" id="epShipPhone" class="ep-input"></div>
+                    </div>
+                    <label class="input-label">ADDRESS</label>
+                    <input type="text" id="epShipAddress" class="ep-input">
+                    <div class="flex-row">
+                        <div style="flex:1;"><label class="input-label">CITY / DISTRICT</label><input type="text" id="epShipCity" class="ep-input"></div>
+                        <div style="flex:1;"><label class="input-label">PROVINCE</label><input type="text" id="epShipProv" class="ep-input"></div>
+                    </div>
+                    <div class="flex-row">
+                        <div style="flex:1;"><label class="input-label">POSTAL CODE</label><input type="text" id="epShipZip" class="ep-input"></div>
+                        <div style="flex:1;"><label class="input-label">COUNTRY</label><input type="text" id="epShipCountry" value="Thailand" class="ep-input"></div>
+                    </div>
+                </div>
+
+                <label class="input-label">SHIPPING LOCATION (GPS)</label>
+                <input type="text" id="epLocation" placeholder="Select from map" readonly class="ep-input" style="text-align:center; font-weight:600; color: var(--accent-purple); background: #F4F7FE;">
+                
+                <div style="height: 150px; border-radius: 16px; margin-bottom: 20px; overflow: hidden; background:#E2E8F0; border:1px solid var(--border-color);" id="mapDisplay">
+                     </div>
+                
+                <div class="flex-row">
+                    <button class="btn" style="background:#FFF; color:var(--text-main); border: 1px solid var(--border-color); flex:1; font-size:12px;" onclick="getLocation()"><i class="fas fa-map-marker-alt" style="color: var(--accent-purple);"></i> My Location</button>
+                    <button class="btn" style="background:var(--accent-purple); color:#FFF; flex:1.5; font-size:12px;" onclick="openMap()">View Full Map</button>
+                </div>
+                
+            </div> 
+            <div class="flex-row" style="margin-bottom:40px;">
+                <button class="btn" onclick="closeEditProfile()" style="background:#FFF; border:1px solid var(--border-color); color:var(--text-muted); flex:1;">Cancel</button>
+                <button class="btn" onclick="saveProfile()" style="background:var(--accent-green); flex:2.5; color:#FFF; box-shadow: 0 4px 15px rgba(5, 205, 153, 0.2);">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalReject" class="modal-center">
+        <div class="modal-box">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                <div style="background: #FEECEB; width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--accent-red); font-size: 16px;"><i class="fas fa-times"></i></div>
+                <div style="font-size: 20px; font-weight: 800; color: var(--text-main);">Reject Sample</div>
+            </div>
+            
+            <div style="font-size: 13px; color: var(--text-main); font-weight: 600;">ระบุสาเหตุ จุดที่ต้องการแก้ไข</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Please specify the reason and areas for revision</div>
+            
+            <input type="hidden" id="rejOrderNo">
+            <textarea id="rejReason" rows="5" placeholder="แขนเสื้อสั้นไป , สีโลโก้ไม่ตรง ....\nSleeves are too short , logo color incorrect..." style="background: #F4F7FE; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; width: 100%; box-sizing: border-box;"></textarea>
+            
+            <div class="flex-row" style="margin-top:20px;">
+                <button class="btn" style="background: #FFF; color: var(--text-muted); border: 1px solid var(--border-color); border-radius: 12px; flex: 1;" onclick="closeModal('modalReject')">Cancel</button>
+                <button class="btn" style="background: var(--accent-red); color: #FFF; border-radius: 12px; flex: 1.5; font-size: 13px; box-shadow: 0 4px 15px rgba(238, 93, 80, 0.2);" onclick="confirmReject()">Notify Production</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalFeedback" class="modal-center">
+        <div class="modal-box">
+            <h3 style="color:var(--text-main); margin-top:0; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+                <div style="background: #FEECEB; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--accent-red); font-size: 14px;"><i class="fas fa-undo"></i></div>
+                QC Rollback
+            </h3>
+            <input type="hidden" id="fbOrderNo">
+            <textarea id="fbReason" rows="4" placeholder="ระบุสาเหตุที่ตีกลับ..." class="ep-input" style="background: #F4F7FE; border: 1px solid var(--border-color);"></textarea>
+            <div class="flex-row" style="margin-top:15px;">
+                <button class="btn" style="background: #FFF; color: var(--text-muted); border: 1px solid var(--border-color);" onclick="closeModal('modalFeedback')">Cancel</button>
+                <button class="btn" style="background: var(--accent-red); color: #FFF;" onclick="confirmRollback()">Confirm Rollback</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalFixPP" class="modal-center">
+        <div class="modal-box">
+            <h3 style="color:var(--text-main); margin-top:0; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+                <div style="background: #E4F9F2; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--accent-green); font-size: 14px;"><i class="fas fa-check"></i></div>
+                Save Revisions
+            </h3>
+            <input type="hidden" id="fixPPOrderNo">
+            <textarea id="fixPPDetail" rows="4" placeholder="รายละเอียดที่แก้ไขไปแล้ว..." class="ep-input" style="background: #F4F7FE; border: 1px solid var(--border-color);"></textarea>
+            <div class="flex-row" style="margin-top:15px;">
+                <button class="btn" style="background: #FFF; color: var(--text-muted); border: 1px solid var(--border-color);" onclick="closeModal('modalFixPP')">Cancel</button>
+                <button class="btn btn-green" onclick="confirmFixPP()">Save Record</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalAboutUs" class="modal-center">
+        <div class="modal-box" style="padding: 25px;">
+            <div class="flex-between" style="margin-bottom: 15px;">
+                <h3 style="color:var(--text-main); margin:0; font-weight: 800;">ABOUT US</h3>
+                <button style="background: #F4F7FE; border:none; color:var(--text-muted); width: 30px; height: 30px; border-radius: 50%; font-size:14px; cursor:pointer;" onclick="closeModal('modalAboutUs')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-content-scroll">
+                <p style="text-indent: 30px; margin-top: 0; text-align: justify;">Welcome to <strong>SMART FACTORY SYSTEM</strong>, our go-to destination for premium manufacturing and tracking solutions. As a fully serviced technology provider, we take immense pride in offering top-quality custom tracking systems exclusively for modern enterprises.</p>
+                <p style="text-indent: 30px; margin-bottom: 0; text-align: justify;">At <strong>Smart Factory Solutions</strong>, we understand the significance of a reliable tracking system in making a bold statement, be it for operational excellence, customer transparency, or building a brand identity. With a blend of innovation, expertise, and a commitment to excellence, we are dedicated to transforming your production ideas into reality.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPrivacy" class="modal-center">
+        <div class="modal-box" style="padding: 25px;">
+            <div class="flex-between" style="margin-bottom: 15px;">
+                <h3 style="color:var(--text-main); margin:0; font-weight: 800;">Privacy Policy</h3>
+                <button style="background: #F4F7FE; border:none; color:var(--text-muted); width: 30px; height: 30px; border-radius: 50%; font-size:14px; cursor:pointer;" onclick="closeModal('modalPrivacy')"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="lang-tabs">
+                <div id="btn-privacy-th" class="btn-lang active" onclick="switchLang('privacy', 'th')">ภาษาไทย</div>
+                <div id="btn-privacy-en" class="btn-lang" onclick="switchLang('privacy', 'en')">English</div>
+            </div>
+
+            <div class="modal-content-scroll" id="privacy-th">
+                <h4 style="text-align: center; color:var(--text-main); font-size: 16px; margin-top: 0;">นโยบายความเป็นส่วนตัว (Privacy Policy)</h4>
+                <div style="text-align: center; font-weight: bold; margin-bottom: 15px; color: var(--accent-purple);">สำหรับบริการระบบติดตามสถานะสินค้า ของ Smart Factory Solutions Co., Ltd. บน LINE LIFF</div>
+                <p style="text-indent: 30px; margin-top:0;">นโยบายความเป็นส่วนตัวนี้จัดทำขึ้นเพื่อชี้แจงรายละเอียดการเก็บรวบรวม ใช้ หรือเปิดเผยข้อมูลส่วนบุคคลของคุณ ในการเข้าใช้งานผ่านระบบ LINE LIFF ของเรา</p>
+
+                <h4>1. ข้อมูลที่เราเก็บรวบรวม</h4>
+                <p style="margin-bottom:0;">เมื่อคุณใช้งานผ่าน LINE LIFF เราอาจเก็บข้อมูลดังต่อไปนี้:</p>
+                <ul>
+                    <li><strong>ข้อมูลจาก LINE Profile:</strong> ได้แก่ ชื่อผู้ใช้งาน (Display Name), รูปโปรไฟล์ (Picture URL), สถานะ (Status Message) และ User ID (UID)</li>
+                    <li><strong>ข้อมูลที่คุณให้เพิ่มเติม:</strong> เช่น ระบุข้อมูลที่ขอ เช่น ชื่อ-นามสกุล, เบอร์โทรศัพท์, ที่อยู่, อีเมล</li>
+                    <li><strong>ข้อมูลทางเทคนิค:</strong> เช่น ข้อมูลอุปกรณ์, ระบบปฏิบัติการ และประวัติการใช้งานภายใน LIFF</li>
+                </ul>
+
+                <h4>2. วัตถุประสงค์ในการประมวลผลข้อมูล</h4>
+                <p style="margin-bottom:0;">เราจะนำข้อมูลของคุณไปใช้เพื่อวัตถุประสงค์ดังนี้:</p>
+                <ul>
+                    <li>เพื่อ ยืนยันตัวตนในการเข้าใช้งานระบบ</li>
+                    <li>เพื่อ ให้บริการรายงานสถานะการสั่งซื้อสินค้า และเข้าร่วมเป็นสมาชิกในชุมชนของเรา</li>
+                    <li>เพื่อ การสื่อสาร ให้ข้อมูลข่าวสาร หรือแจ้งเตือนสถานะต่างๆ ผ่าน LINE</li>
+                    <li>เพื่อ พัฒนาและปรับปรุงประสิทธิภาพการขาย และส่งสินค้าได้อย่างโปร่งใส</li>
+                </ul>
+
+                <h4>3. การรักษาความปลอดภัย</h4>
+                <p style="text-indent: 30px;">เรามีมาตรการรักษาความปลอดภัยที่เหมาะสมเพื่อป้องกันไม่ให้ข้อมูลส่วนบุคคลของคุณสูญหาย เข้าถึงโดยมิชอบ หรือถูกเปิดเผยโดยไม่ได้รับอนุญาต โดยเราจะเก็บรักษาข้อมูลไว้เป็นระยะเวลา 1 ปี และ หรือ ตลอดระยะเวลาที่เป็นสมาชิก</p>
+
+                <h4>4. สิทธิของเจ้าของข้อมูลส่วนบุคคล</h4>
+                <p style="margin-bottom:0;">ตามกฎหมาย PDPA คุณมีสิทธิในการ:</p>
+                <ul>
+                    <li>ขอเข้าถึงและขอรับสำเนาข้อมูลส่วนบุคคล</li>
+                    <li>ขอให้แก้ไขข้อมูลให้ถูกต้องและเป็นปัจจุบัน</li>
+                    <li>ขอให้ลบ หรือระงับการใช้ข้อมูลส่วนบุคคล</li>
+                    <li>ถอนความยินยอมในการเก็บรวบรวมข้อมูลได้ทุกเมื่อ (ผ่านการตั้งค่าใน LINE หรือติดต่อเราโดยตรง)</li>
+                </ul>
+
+                <h4>5. การติดต่อเรา</h4>
+                <p style="margin-bottom:0;">หากมีข้อสงสัยเกี่ยวกับนโยบายความเป็นส่วนตัวนี้ สามารถติดต่อได้ที่:</p>
+                <ul>
+                    <li><strong>ผู้ควบคุมข้อมูล:</strong> Smart Factory Solutions Co., Ltd.</li>
+                    <li><strong>ช่องทางติดต่อ:</strong>
+                        <ul style="margin-top: 5px;">
+                            <li>Tel.: +6665-919-0612 / +6665-938-7076</li>
+                            <li>E-mail: contact@smartfactory.com</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="modal-content-scroll" id="privacy-en" style="display: none;">
+                <h4 style="text-align: center; color:var(--text-main); font-size: 16px; margin-top: 0;">Privacy Policy</h4>
+                <div style="text-align: center; font-weight: bold; margin-bottom: 15px; color: var(--accent-purple);">For Order Tracking System of Smart Factory Solutions Co., Ltd. via LINE LIFF</div>
+                <p style="text-indent: 30px; margin-top:0;">This Privacy Policy is established to clarify the details regarding the collection, use, or disclosure of your personal data when accessing our services through the LINE LIFF platform.</p>
+
+                <h4>1. Data We Collect</h4>
+                <p style="margin-bottom:0;">When you use our services via LINE LIFF, we may collect the following information:</p>
+                <ul>
+                    <li><strong>LINE Profile Data:</strong> Including Display Name, Picture URL, Status Message, and User ID (UID).</li>
+                    <li><strong>Additional Information Provided by You:</strong> Such as Name-Surname, Phone Number, Shipping Address, and Email.</li>
+                    <li><strong>Technical Data:</strong> Including device information, operating system, and usage history within the LIFF application.</li>
+                </ul>
+
+                <h4>2. Purposes of Data Processing</h4>
+                <p style="margin-bottom:0;">We will use your information for the following purposes:</p>
+                <ul>
+                    <li>To verify your identity for system access.</li>
+                    <li>To provide order status reporting services and facilitate membership within our community.</li>
+                    <li>To communicate, provide news updates, or send status notifications via LINE.</li>
+                    <li>To develop and improve sales efficiency and ensure transparent product delivery.</li>
+                </ul>
+
+                <h4>3. Data Security</h4>
+                <p style="text-indent: 30px;">We implement appropriate security measures to prevent your personal data from being lost, accessed without authorization, or improperly disclosed. We will retain your data for a period of 1 year and/or for the entire duration of your membership.</p>
+
+                <h4>4. Rights of the Data Subject</h4>
+                <p style="margin-bottom:0;">In accordance with the Personal Data Protection Act (PDPA), you have the right to:</p>
+                <ul>
+                    <li>Request access to and obtain a copy of your personal data.</li>
+                    <li>Request to rectify your data to be accurate and up-to-date.</li>
+                    <li>Request the erasure or suspension of the use of your personal data.</li>
+                    <li>Withdraw your consent for data collection at any time (via LINE settings or by contacting us directly).</li>
+                </ul>
+
+                <h4>5. Contact Us</h4>
+                <p style="margin-bottom:0;">If you have any questions regarding this Privacy Policy, please contact:</p>
+                <ul>
+                    <li><strong>Data Controller:</strong> Smart Factory Solutions Co., Ltd.</li>
+                    <li><strong>Contact Channels:</strong>
+                        <ul style="margin-top: 5px;">
+                            <li>Tel: +66 65-919-0612 / +66 65-938-7076</li>
+                            <li>Email: contact@smartfactory.com</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalTerms" class="modal-center">
+        <div class="modal-box" style="padding: 25px;">
+            <div class="flex-between" style="margin-bottom: 15px;">
+                <h3 style="color:var(--text-main); margin:0; font-weight: 800;">Terms & Conditions</h3>
+                <button style="background: #F4F7FE; border:none; color:var(--text-muted); width: 30px; height: 30px; border-radius: 50%; font-size:14px; cursor:pointer;" onclick="closeModal('modalTerms')"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="lang-tabs">
+                <div id="btn-terms-th" class="btn-lang active" onclick="switchLang('terms', 'th')">ภาษาไทย</div>
+                <div id="btn-terms-en" class="btn-lang" onclick="switchLang('terms', 'en')">English</div>
+            </div>
+
+            <div class="modal-content-scroll" id="terms-th">
+                <h4 style="text-align: center; color:var(--text-main); font-size: 16px; margin-top: 0;">ข้อกำหนด และเงื่อนไขการใช้บริการ (Terms & Conditions)</h4>
+                
+                <h4>1. การยอมรับเงื่อนไข</h4>
+                <p style="text-indent: 30px;">การที่คุณเข้าใช้งานผ่าน LINE LIFF นี้ ถือว่าคุณได้อ่าน เข้าใจ และตกลงที่จะผูกพันตามเงื่อนไขที่ระบุไว้ทั้งหมด หากไม่ตกลงกรุณาหยุดการใช้งานทันที</p>
+                
+                <h4>2. คุณสมบัติของผู้ใช้งาน</h4>
+                <p style="text-indent: 30px;">ผู้ใช้ต้องเชื่อมต่อผ่านบัญชี LINE ที่มีตัวตนจริง</p>
+                
+                <h4>3. หน้าที่ และความรับผิดชอบของผู้ใช้</h4>
+                <ul>
+                    <li>ผู้ใช้ตกลงที่จะให้ข้อมูลที่เป็นความจริง และเป็นปัจจุบัน</li>
+                    <li>ห้ามมิให้ผู้ใช้งานกระทำการใดๆ ที่เป็นการละเมิดสิทธิ์ของผู้อื่น หรือกระทำการที่ผิดกฎหมายผ่านระบบนี้</li>
+                    <li>ผู้ใช้ต้องรักษาความปลอดภัยของบัญชี LINE ของตนเอง หากมีการเข้าถึงโดยบุคคลอื่นเนื่องจากความประมาทของผู้ใช้ ทางเราจะไม่รับผิดชอบต่อความเสียหายที่เกิดขึ้น</li>
+                </ul>
+                
+                <h4>4. ขอบเขตการให้บริการและการปฏิเสธความรับผิดชอบ</h4>
+                <ul>
+                    <li>เราพยายามอย่างเต็มที่เพื่อให้ระบบเสถียร แต่ไม่รับรองว่าบริการจะไม่มีการขัดข้อง (Downtime) หรือข้อผิดพลาดทางเทคนิค</li>
+                    <li>เราไม่ต้องรับผิดชอบต่อความเสียหายใดๆ ที่เกิดจากการเชื่อมต่ออินเทอร์เน็ตของผู้ใช้ หรือความผิดพลาดที่เกิดจากตัวแพลตฟอร์ม LINE เอง</li>
+                </ul>
+                
+                <h4>5. การระงับการใช้งาน</h4>
+                <p style="text-indent: 30px;">เราขอสงวนสิทธิ์ในการระงับ หรือยกเลิกการเข้าถึงบริการของผู้ใช้โดยไม่ต้องแจ้งให้ทราบล่วงหน้า หากพบว่าผู้ใช้ละเมิดข้อกำหนด หรือมีการใช้งานในลักษณะที่สุ่มเสี่ยงต่อความปลอดภัยของระบบ</p>
+                
+                <h4>6. ทรัพย์สินทางปัญญา</h4>
+                <p style="text-indent: 30px;">เนื้อหา โลโก้ ข้อความ และซอฟต์แวร์ที่ปรากฏใน LINE LIFF นี้ เป็นลิขสิทธิ์ของ Smart Factory Solutions Co., Ltd. ห้ามมิให้ผู้ใดคัดลอก หรือนำไปใช้โดยไม่ได้รับอนุญาต</p>
+                
+                <h4>7. การเปลี่ยนแปลงเงื่อนไข</h4>
+                <p style="text-indent: 30px;">เราขอสงวนสิทธิ์ในการแก้ไขหรือเปลี่ยนแปลงข้อกำหนดเหล่านี้ได้ทุกเมื่อ โดยจะมีผลทันทีที่ประกาศผ่านระบบ</p>
+            </div>
+
+            <div class="modal-content-scroll" id="terms-en" style="display: none;">
+                <h4 style="text-align: center; color:var(--text-main); font-size: 16px; margin-top: 0;">Terms & Conditions</h4>
+                <div style="text-align: center; font-weight: bold; margin-bottom: 15px; color: var(--accent-purple);">For Services via LINE LIFF by Smart Factory Solutions Co., Ltd.</div>
+                
+                <h4>1. Acceptance of Terms</h4>
+                <p style="text-indent: 30px;">By accessing and using this LINE LIFF, you acknowledge that you have read, understood, and agree to be bound by all the terms and conditions specified herein. If you do not agree to these terms, please discontinue use of the service immediately.</p>
+                
+                <h4>2. User Eligibility</h4>
+                <p style="text-indent: 30px;">Users must connect through a verified and authentic LINE account.</p>
+                
+                <h4>3. User Duties and Responsibilities</h4>
+                <ul>
+                    <li>Users agree to provide information that is true, accurate, and up-to-date.</li>
+                    <li>Users are prohibited from engaging in any activities that infringe upon the rights of others or violate any laws through this system.</li>
+                    <li>Users are responsible for maintaining the security of their own LINE account. We shall not be held liable for any damages resulting from unauthorized access caused by the user’s negligence.</li>
+                </ul>
+                
+                <h4>4. Scope of Service and Disclaimer</h4>
+                <ul>
+                    <li>While we strive to maintain system stability, we do not guarantee that the service will be uninterrupted (Downtime) or free of technical errors.</li>
+                    <li>We are not responsible for any damages resulting from the user's internet connection or technical failures originating from the LINE platform itself.</li>
+                </ul>
+                
+                <h4>5. Suspension of Service</h4>
+                <p style="text-indent: 30px;">We reserve the right to suspend or terminate a user's access to the service without prior notice if it is found that the user has violated these terms or is using the system in a manner that compromises system security.</p>
+                
+                <h4>6. Intellectual Property</h4>
+                <p style="text-indent: 30px;">All content, logos, text, and software appearing on this LINE LIFF are the intellectual property of Smart Factory Solutions Co., Ltd. Reproduction or unauthorized use of these materials is strictly prohibited.</p>
+                
+                <h4>7. Amendments to Terms</h4>
+                <p style="text-indent: 30px;">We reserve the right to amend or change these terms and conditions at any time. Such changes will take effect immediately upon being posted on the system.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // ================= CONFIGURATION =================
+        const GAS_API = 'https://script.google.com/macros/s/AKfycbwiX8oI4ouEHQXOXRTZQRueI2O2AKVRi4PlZkFaXG3tIJL8Yjg-ZmfRFytaUh2NYrwsVA/exec'; 
+        const LIFF_ID = '2009142530-l2sIA52W';
+        // โลโก้ Smart Factory System ใหม่
+        const BRAND_LOGO = 'https://drive.google.com/thumbnail?id=1rg1XsScw5PMRH25Iz4QDejcMB0JpTYK4&sz=w200';
+        // =================================================
+
+        let userProfile = {};
+        let dbUserData = {};
+        let globalOrders = [];
+        let preloadedImages = {}; 
+        let currentLat = null; 
+        let currentLng = null;
+        let isStaff = false;
+        let expandedOrderNo = null;
+
+        function formatDateTime(ts) {
+            if(!ts || ts === '-') return "-";
+            const d = new Date(ts);
+            if(isNaN(d.getTime())) return "-";
+            const pad = n => String(n).padStart(2, '0');
+            return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+        }
+        
+        function formatDateTimeWithTime(ts) {
+            if(!ts || ts === '-') return "-";
+            const d = new Date(ts);
+            if(isNaN(d.getTime())) return "-";
+            const pad = n => String(n).padStart(2, '0');
+            return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}.${pad(d.getMinutes())}`;
+        }
+
+        function getSafeImageUrl(url) {
+            if (!url || url === '-') return null;
+            const match = url.match(/(?:id=|d\/)([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800`;
+            }
+            return url;
+        }
+
+        function getBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    if (file.type.startsWith('image/')) {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 800; 
+                            let scale = 1;
+                            if (img.width > MAX_WIDTH) scale = MAX_WIDTH / img.width;
+                            canvas.width = img.width * scale; canvas.height = img.height * scale;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            resolve(canvas.toDataURL('image/jpeg', 0.7)); 
+                        };
+                        img.onerror = () => resolve(event.target.result);
+                    } else { 
+                        resolve(event.target.result); 
+                    } 
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function processImage(input, orderNo, type) {
+            let statusId = `status-${type}-${orderNo}`; 
+            const status = document.getElementById(statusId);
+            const key = `${type}-${orderNo}`;
+
+            if (input.files.length > 0) {
+                if(status) { status.style.display = 'block'; status.style.color = 'var(--accent-yellow)'; status.innerHTML = 'กำลังประมวลผล...'; }
+                try {
+                    preloadedImages[key] = await getBase64(input.files[0]); 
+                    if(status) { status.style.color = 'var(--accent-green)'; status.innerHTML = 'ไฟล์พร้อมส่ง'; }
+                } catch (e) { 
+                    if(status) { status.style.color = 'var(--accent-red)'; status.innerHTML = 'Error'; } 
+                }
+            } else { 
+                if(status) status.style.display = 'none'; 
+                delete preloadedImages[key]; 
+            }
+        }
+
+        // ================= CORE SYSTEM =================
+        async function main() {
+            try { 
+                if(document.getElementById('logoRegister')) document.getElementById('logoRegister').src = BRAND_LOGO;
+                if(document.getElementById('logoFooter')) document.getElementById('logoFooter').src = BRAND_LOGO;
+                if(document.getElementById('logoWelcome')) document.getElementById('logoWelcome').src = BRAND_LOGO;
+                if(document.getElementById('logoLogin')) document.getElementById('logoLogin').src = BRAND_LOGO;
+
+                await liff.init({ liffId: LIFF_ID }); 
+                if (!liff.isLoggedIn()) { liff.login(); return; }
+                userProfile = await liff.getProfile(); 
+                checkUser();
+            } catch(e) { alert("LIFF Init Error"); }
+        }
+        main();
+
+        function callBackend(action, data, callback) {
+            document.getElementById('loader').classList.remove('hidden');
+            fetch(GAS_API, { method: 'POST', body: JSON.stringify({ action: action, data: data }) })
+            .then(r => r.json())
+            .then(res => { 
+                document.getElementById('loader').classList.add('hidden'); 
+                if(callback) callback(res); 
+            })
+            .catch(e => { 
+                document.getElementById('loader').classList.add('hidden'); 
+                alert("Error connecting to server"); 
+            });
+        }
+
+        // --- เพิ่มฟังก์ชันจัดการหน้าต่างแรก (Welcome / Login / Register) ---
+        function showAuthView(viewId) {
+            document.getElementById('viewWelcome').classList.add('hidden');
+            document.getElementById('viewLogin').classList.add('hidden');
+            document.getElementById('viewRegister').classList.add('hidden');
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        function checkUser() {
+            callBackend('get_user', { userId: userProfile.userId }, (res) => {
+                if (res.found) {
+                    dbUserData = res.data;
+                    document.getElementById('viewApp').classList.remove('hidden');
+                    
+                    document.getElementById('headerName').innerText = dbUserData.RealName;
+                    document.getElementById('headerBrand').innerText = dbUserData.BrandName || 'No Brand';
+                    document.getElementById('headerPic').src = userProfile.pictureUrl || 'https://via.placeholder.com/100';
+                    
+                    document.getElementById('sidebarPic').src = userProfile.pictureUrl || 'https://via.placeholder.com/100';
+                    document.getElementById('sidebarName').innerText = dbUserData.RealName;
+                    
+                    const role = dbUserData.Role;
+                    const staffRoles = ['Admin', 'Sales Admin', 'Production Manager', 'Quality Control', 'Merchandiser', 'Sales Coordinators', 'Sale Admin', 'Sale Coordinator'];
+                    
+                    if (staffRoles.includes(role)) {
+                        isStaff = true;
+                        document.getElementById('headerTier').innerHTML = '<i class="fas fa-user-shield"></i> Staff';
+                        
+                        document.getElementById('sidebarRole').innerText = role; 
+                        document.getElementById('headerId').classList.add('hidden');
+                        document.getElementById('sidebarMenuStaff').classList.remove('hidden');
+                        document.getElementById('sidebarMenuCustomer').classList.add('hidden');
+                        document.getElementById('staffElements').classList.remove('hidden');
+                        
+                        const canCreate = ['Sales Admin', 'Sales Coordinators', 'Sale Admin', 'Sale Coordinator', 'Admin'].includes(role);
+                        if (canCreate) {
+                            document.getElementById('navBtnCreate').style.display = 'flex';
+                            document.getElementById('sidebarMenuCreate').style.display = 'flex';
+                        } else {
+                            document.getElementById('navBtnCreate').style.display = 'none';
+                            document.getElementById('sidebarMenuCreate').style.display = 'none';
+                        }
+                        
+                        switchTab('StaffOrders'); 
+                        fetchOptions(); 
+                        fetchStaffData();
+                    } else { 
+                        isStaff = false;
+                        
+                        let tierIcon = '<i class="fas fa-user"></i> Regular';
+                        if (dbUserData.Tier === 'VVIP') tierIcon = '<i class="fas fa-crown"></i> VVIP';
+                        if (dbUserData.Tier === 'VIP') tierIcon = '<i class="fas fa-star"></i> VIP';
+                        document.getElementById('headerTier').innerHTML = tierIcon;
+
+                        document.getElementById('sidebarRole').innerText = "ID: " + (dbUserData.CustomerID || '-');
+                        document.getElementById('headerId').innerText = "Customer ID: " + (dbUserData.CustomerID || '-');
+                        document.getElementById('sidebarMenuStaff').classList.add('hidden');
+                        document.getElementById('sidebarMenuCustomer').classList.remove('hidden');
+                        document.getElementById('customerElements').classList.remove('hidden');
+                        setupCustomerView(); 
+                    }
+                } else { 
+                    // ถ้าไม่พบ User ให้แสดงหน้าต่าง Welcome ให้เลือกทำรายการ
+                    showAuthView('viewWelcome');
+                }
+            });
+        }
+
+        function register() {
+            const payload = { 
+                userId: userProfile.userId, 
+                realName: document.getElementById('regName').value, 
+                brandName: document.getElementById('regBrand').value, 
+                phone: document.getElementById('regPhone').value, 
+                email: document.getElementById('regEmail').value 
+            };
+            if(!payload.realName || !payload.phone) return alert("Please fill in all required fields.");
+            callBackend('register', payload, (res) => { if(res.status === 'success') location.reload(); });
+        }
+
+        function processLogin() {
+            const name = document.getElementById('loginName').value;
+            const email = document.getElementById('loginEmail').value;
+            
+            if(!name || !email) return alert("Please enter both Name and Email.");
+            
+            const payload = {
+                userId: userProfile.userId, 
+                name: name,
+                email: email
+            };
+            
+            callBackend('login_user', payload, (res) => {
+                if(res.status === 'success') {
+                    alert("Login successful!");
+                    location.reload(); 
+                } else {
+                    alert(res.message);
+                }
+            });
+        }
+
+        function toggleSidebar() { 
+            document.getElementById('sidebarMenu').classList.toggle('open'); 
+            document.getElementById('sidebarOverlay').classList.toggle('show'); 
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
+            if(!isStaff) {
+                document.querySelectorAll('.nav-sq').forEach(el => el.classList.remove('active'));
+                if(document.getElementById('navSq' + tabId)) document.getElementById('navSq' + tabId).classList.add('active');
+            } else {
+                document.querySelectorAll('.s-btn').forEach(el => { el.classList.remove('s-btn-create','s-btn-all'); el.classList.add('s-btn-inactive'); });
+                if(tabId === 'CreateOrder') { document.getElementById('navBtnCreate').classList.remove('s-btn-inactive'); document.getElementById('navBtnCreate').classList.add('s-btn-create'); }
+                if(tabId === 'StaffOrders') { document.getElementById('navBtnAll').classList.remove('s-btn-inactive'); document.getElementById('navBtnAll').classList.add('s-btn-all'); }
+            }
+            document.getElementById('sidebarMenu').classList.remove('open'); 
+            document.getElementById('sidebarOverlay').classList.remove('show');
+            document.getElementById('tab' + tabId).classList.remove('hidden');
+        }
+
+        // ================= CUSTOMER VIEW =================
+        function setupCustomerView() {
+            switchTab('Orders'); 
+            fetchCustomerOrders();
+        }
+
+        function getDisplayStatus(status) {
+            if (['Pending Customer Confirmation', 'Order Confirmation'].includes(status)) return 'Order Received';
+            if (['Work Order Review Stage', 'Sampling Stage', 'PP Rejected'].includes(status)) return 'Preparation';
+            if (['Pre-Production Approved', 'Bulk Production (50%)', 'Correction Needed'].includes(status)) return 'In Production';
+            if (['Quality Control Passed'].includes(status)) return 'Quality Check';
+            if (['Shipped'].includes(status)) return 'Delivered';
+            return status;
+        }
+
+        function getStepIndex(status) {
+            const display = getDisplayStatus(status);
+            if(display === 'Order Received') return 1;
+            if(display === 'Preparation') return 2;
+            if(display === 'In Production') return 3;
+            if(display === 'Quality Check') return 4;
+            if(display === 'Delivered') return 5;
+            return 1;
+        }
+        
+        function getStatusColor(status) {
+            const display = getDisplayStatus(status);
+            if(display === 'Order Received') return 'var(--accent-green)'; 
+            if(display === 'Preparation') return 'var(--accent-yellow)';    
+            if(display === 'In Production') return 'var(--accent-purple)';  
+            if(display === 'Quality Check') return 'var(--accent-purple)';  
+            if(display === 'Delivered') return 'var(--accent-green)';      
+            if(['PP Rejected', 'Correction Needed'].includes(status)) return 'var(--accent-red)';
+            return 'var(--text-main)';
+        }
+
+        function updateCustomerBanner(latestOrder) {
+            const banner = document.getElementById('statusBanner');
+            if(!latestOrder) { banner.classList.add('hidden'); return; }
+            banner.classList.remove('hidden');
+            
+            const displayStatus = getDisplayStatus(latestOrder.status);
+            document.getElementById('bannerStatusText').innerText = displayStatus;
+            document.getElementById('bannerOrderNo').innerText = latestOrder.orderNo;
+            document.getElementById('bannerDate').innerText = latestOrder.delivery;
+
+            banner.className = 'status-banner'; // Reset
+            const step = getStepIndex(latestOrder.status);
+            
+            if(step === 1) banner.classList.add('bg-banner-received');
+            else if(step === 2) banner.classList.add('bg-banner-prep');
+            else if(step === 3) banner.classList.add('bg-banner-prod');
+            else if(step === 4) banner.classList.add('bg-banner-qc');
+            else if(step === 5) banner.classList.add('bg-banner-deliv');
+        }
+
+        function toggleOrderCollapse(orderNo) {
+            expandedOrderNo = (expandedOrderNo === orderNo) ? null : orderNo;
+            filterOrders(); 
+        }
+        
+        function filterOrders() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filtered = globalOrders.filter(o => {
+                const matchSearch = o.orderNo.toLowerCase().includes(search) || 
+                                    (o.style && o.style.toLowerCase().includes(search)) ||
+                                    (o.custPhone && o.custPhone.includes(search));
+                const displayStatus = getDisplayStatus(o.status);
+                const matchStatus = statusFilter === 'ALL' || displayStatus === statusFilter;
+                return matchSearch && matchStatus;
+            });
+            renderCustomerOrders(filtered);
+        }
+
+        function renderCustomerOrders(orders) {
+            const container = document.getElementById('orderListContainer');
+            if (orders.length === 0) { 
+                container.innerHTML = '<div class="order-card" style="text-align:center; color:var(--text-muted); font-weight:600; padding:40px;">No orders found</div>'; 
+                updateCustomerBanner(null);
+                return; 
+            }
+
+            let cPrep=0, cProd=0, cDeliv=0;
+            let activeOrder = null;
+            let html = '';
+
+            if (!expandedOrderNo && orders.length > 0) {
+                let active = orders.find(o => o.status !== 'Shipped');
+                expandedOrderNo = active ? active.orderNo : orders[0].orderNo;
+            }
+
+            orders.forEach(o => {
+                const step = getStepIndex(o.status);
+                const displayStatus = getDisplayStatus(o.status);
+                const isExpanded = expandedOrderNo === o.orderNo;
+                
+                if(step <= 2) cPrep++;
+                else if(step <= 4) cProd++;
+                else cDeliv++;
+
+                if(!activeOrder && step < 5) activeOrder = o;
+
+                let statusColor = getStatusColor(o.status);
+
+                let cardHtml = `
+                <div class="order-card" style="padding:0; overflow:hidden;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:20px; cursor:pointer; background:#FFF;" onclick="toggleOrderCollapse('${o.orderNo}')">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="background:#F4F7FE; width:45px; height:45px; border-radius:12px; display:flex; justify-content:center; align-items:center; font-size:20px; color:var(--accent-purple);">
+                                <i class="fas fa-tshirt"></i>
+                            </div>
+                            <div>
+                                <strong style="color:var(--text-main); font-size:14px; font-weight: 800;">${o.orderNo}</strong>
+                                <div style="font-size:11px; color:var(--text-muted); font-weight: 600;">${o.startDate !== '-' ? o.startDate : o.updatedDate}</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="color:${statusColor}; font-size:13px; font-weight:800;">${displayStatus}</span>
+                            <i class="fas fa-chevron-down chevron ${isExpanded ? 'up' : ''}"></i>
+                        </div>
+                    </div>`;
+
+                if (isExpanded) {
+                    const steps = [
+                        { name: 'Order Received', date: o.startDate },
+                        { name: 'Preparation', date: o.prepDate },
+                        { name: 'In Production', date: o.prodDate },
+                        { name: 'Quality Check', date: o.qcDate },
+                        { name: 'Delivered', date: o.shipDate }
+                    ];
+
+                    let stepperHtml = '<div class="stepper-wrapper" style="margin-bottom:25px; display:flex; justify-content:space-between; position:relative;">';
+                    steps.forEach((s, idx) => {
+                        const stepNum = idx + 1;
+                        const isCompleted = stepNum <= step;
+                        const circleColor = isCompleted ? 'var(--accent-green)' : '#E2E8F0';
+                        const lineBg = stepNum < step ? 'var(--accent-green)' : '#E2E8F0';
+                        stepperHtml += `
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; position: relative;">
+                            ${idx < steps.length - 1 ? `<div style="position: absolute; top: 11px; left: 50%; width: 100%; height: 3px; background: ${lineBg}; z-index: 1;"></div>` : ''}
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: ${circleColor}; z-index: 2; margin-bottom: 8px; border: 2px solid #FFF; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"></div>
+                            <div style="font-size: 8px; color: ${isCompleted ? 'var(--text-main)' : 'var(--text-muted)'}; font-weight: 800; text-align: center; line-height: 1.1; width: 120%;">${s.name}</div>
+                            <div style="font-size: 8px; color: var(--text-muted); margin-top: 2px; font-weight: 600;">${s.date !== '-' ? s.date : ''}</div>
+                        </div>`;
+                    });
+                    stepperHtml += '</div>';
+
+                    let woDisplayUrl = getSafeImageUrl(o.woUrl) || o.woUrl;
+                    let hasWo = o.woUrl && o.woUrl !== '-';
+
+                    let detailBox = `
+                    <div style="background:#F8F9FA; border-radius:16px; padding:15px; border:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; margin-bottom: 25px;">
+                        <div>
+                            <div style="color:var(--accent-purple); font-size:18px; font-weight:800;">${o.style} <span style="font-size:14px; font-weight:600; color:var(--text-muted);">(${o.qty} pcs)</span></div>
+                            <div style="font-size:11px; color:var(--text-muted); font-weight: 600; margin-top:8px;">Estimated Delivery:<br><span style="font-size:15px; color:var(--text-main); font-weight:800;">${o.delivery}</span></div>
+                        </div>
+                        ${hasWo ? `<div style="width: 75px; height: 75px; border-radius: 8px; overflow:hidden; background:#E2E8F0; border: 1px solid var(--border-color); flex-shrink:0;">
+                            <img src="${woDisplayUrl}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="window.open('${o.woUrl}', '_blank')" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/222222/FFFFFF?text=WO';">
+                        </div>` : ''}
+                    </div>`;
+
+                    let actionHtml = '';
+                    if (o.status === 'Pending Customer Confirmation') {
+                        actionHtml = `
+                        <div style="margin-top:15px; border-top:1px dashed var(--border-color); padding-top:20px;">
+                            <div style="text-align:center; font-size:12px; color:var(--accent-yellow); margin-bottom:15px; font-weight:700; background: #FFF9E6; padding: 10px; border-radius: 8px;">กรุณาตรวจสอบใบสั่งงานและคอนเฟิร์มออเดอร์<br>Please review the production order and confirm</div>
+                            ${hasWo ? `<button class="btn" style="background:#FFF; color:var(--text-main); border: 1px solid var(--border-color); border-radius:12px; margin-bottom:15px; font-weight:700; box-shadow: 0 2px 10px rgba(0,0,0,0.02);" onclick="window.open('${o.woUrl}', '_blank')"><i class="fas fa-file-pdf" style="color:var(--accent-purple);"></i> View Work Order (PDF/Img)</button>` : ''}
+                            
+                            <button class="btn" style="background:var(--accent-green); color:#FFF; border-radius:12px; font-weight:800; white-space: nowrap; font-size: 14px; box-shadow: 0 4px 15px rgba(5, 205, 153, 0.3);" onclick="confirmWOAction('${o.orderNo}')">
+                                <i class="far fa-check-circle"></i> Confirm Order & Proceed
+                            </button>
+                            
+                            <div style="margin-top: 25px; font-family: 'Noto Sans Thai', sans-serif;">
+                                <div style="text-align:center; margin-bottom: 15px;">
+                                    <div style="font-size: 20px; font-weight: 800; color: var(--accent-red); line-height: 1.1;">กรุณาอ่านก่อนคอนเฟิร์ม</div>
+                                    <div style="font-size: 14px; font-weight: 700; color: var(--accent-red); margin-bottom: 5px;">Please Read Carefully</div>
+                                    <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">หลังจากยืนยันแล้ว จะไม่สามารถแก้ไขรายละเอียดของออเดอร์ได้อีก<br>After confirmation, no further changes can be made to the order details.</div>
+                                </div>
+                                
+                                <div class="scroll-box">
+                                    <div style="border: 1px solid var(--border-color); background: #F8F9FA; border-radius: 16px; padding: 15px; margin-bottom: 10px;">
+                                        <div style="font-size: 14px; font-weight: 800; color: var(--accent-purple); margin-bottom: 5px;">สำหรับการทำตัวอย่างสินค้า</div>
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: var(--text-main); margin-bottom: 15px; font-weight: 500;">
+                                            <li>สามารถแก้ไขตัวอย่างได้ 1 ครั้งเท่านั้น หลังจากยืนยันแล้ว การทำตัวอย่างจะใช้เวลาประมาณ 5–10 วัน ขึ้นอยู่กับรายละเอียดของงาน</li>
+                                            <li>ขนาดการตัดเย็บและแพทเทิร์นอาจมีค่าความคลาดเคลื่อนประมาณ 0.5–2 นิ้ว</li>
+                                        </ul>
+                                        <div style="font-size: 14px; font-weight: 800; color: var(--accent-purple); margin-bottom: 5px;">For Sample Development</div>
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: var(--text-main); font-weight: 500;">
+                                            <li>Only one sample revision is allowed. After confirmation, sample production will take approximately 5-10 days, depending on the order details.</li>
+                                            <li>Sewing and pattern measurements may have a tolerance of approximately 0.5-2 inches.</li>
+                                        </ul>
+                                    </div>
+
+                                    <div style="border: 1px solid var(--border-color); background: #F8F9FA; border-radius: 16px; padding: 15px; margin-bottom: 10px;">
+                                        <div style="font-size: 14px; font-weight: 800; color: var(--accent-purple); margin-bottom: 5px;">สำหรับออเดอร์ผลิตแบบสั่งทำ</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">สามารถปรับแก้ดะไรได้บ้าง ?</div>
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: var(--text-main); margin-bottom: 10px; font-weight: 500;">
+                                            <li>วิธีการเย็บ / ปกเสื้อ / คอเสื้อ / ป้ายแบรนด์</li>
+                                            <li>การปรับตำแหน่งสกรีน</li>
+                                            <li>การปรับขนาด (การเพิ่มขนาดอาจมีค่าใช้จ่ายเพิ่มเติม)</li>
+                                        </ul>
+                                        <div style="font-size: 11px; font-weight: 800; color: var(--accent-purple); margin-top:10px;">หมายเหตุ</div>
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: var(--text-main); margin-bottom: 15px; font-weight: 500;">
+                                            <li>การเปลี่ยน รูปแบบเสื้อ ผ้า เทคนิคการพิมพ์ หรือขนาดงานพิมพ์ จะมีค่าใช้จ่ายสำหรับการตั้งค่าการผลิตหรือการทำบล็อกเพิ่มเติม</li>
+                                            <li>การทำตัวอย่างหลังจากยืนยันแล้วจะใช้เวลาประมาณ 5–10 วัน ขึ้นอยู่กับรายละเอียดของงาน</li>
+                                        </ul>
+                                        
+                                        <div style="font-size: 14px; font-weight: 800; color: var(--accent-purple); margin-bottom: 5px;">For Custom Production Orders</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">What can be adjusted?</div>
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: var(--text-main); margin-bottom: 10px; font-weight: 500;">
+                                            <li>Sewing details such as collar, neckline, or brand label</li>
+                                            <li>Adjusting the screen printing position</li>
+                                            <li>Adjusting the garment size (increasing size may incur additional costs)</li>
+                                        </ul>
+                                        <div style="font-size: 14px; font-weight: 800; color: var(--accent-purple); margin-bottom: 5px;">Notes</div>
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: var(--text-main); font-weight: 500;">
+                                            <li>Changing the garment style, fabric, printing technique, or print size may require additional setup or block fees.</li>
+                                            <li>Sample production will take approximately 5-10 days after confirmation, depending on the order details.</li>
+                                        </ul>
+                                    </div>
+
+                                    <div style="border: 1px solid var(--border-color); background: #F8F9FA; border-radius: 16px; padding: 15px; margin-bottom: 10px;">
+                                        <div style="font-size: 14px; font-weight: 800; color: var(--accent-purple); margin-bottom: 5px;">เงื่อนไขการแก้ไขตัวอย่าง</div>
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: var(--text-main); margin-bottom: 15px; font-weight: 500;">
+                                            <li>ออเดอร์ 100 ตัวขึ้นไป สามารถแก้ตัวอย่างได้ 3 ครั้ง (สูงสุด 3 ตัวอย่าง)</li>
+                                            <li>ออเดอร์ 50 ตัวขึ้นไป สามารถแก้ตัวอย่างได้ 1 ครั้ง (สูงสุด 1 ตัวอย่าง)</li>
+                                            <li>ขนาดการตัดเย็บและแพทเทิร์นอาจมีค่าความคลาดเคลื่อนประมาณ 0.5–2 นิ้ว</li>
+                                        </ul>
+                                        <div style="font-size: 14px; font-weight: 800; color: var(--accent-purple); margin-bottom: 5px;">Sample revision policy:</div>
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: var(--text-main); font-weight: 500;">
+                                            <li>Orders of 100 pieces or more: Up to 3 sample revisions (maximum 3 samples)</li>
+                                            <li>Orders of 50 pieces or more: 1 sample revision (maximum 1 sample)</li>
+                                            <li>Sewing and pattern measurements may have a tolerance of approximately 0.5-2 inches.</li>
+                                        </ul>
+                                    </div>
+
+                                    <div style="border: 1px solid var(--border-color); background: #F8F9FA; border-radius: 16px; padding: 15px;">
+                                        <div style="font-size: 14px; font-weight: 800; color: var(--accent-purple); margin-bottom: 5px;">For Ready-Made Garments (No Minimum Order)</div>
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: var(--text-main); margin-bottom: 15px; font-weight: 500;">
+                                            <li>For ready-made garments, no sample will be produced before production. Production will begin after order confirmation and will take approximately 5-10 days.</li>
+                                            <li>Orders without a minimum quantity cannot reserve specific items in advance, as production quantities may vary.</li>
+                                            <li>Once the order is confirmed, orders cannot be cancelled or refunded, except in cases where the products are damaged or defective.</li>
+                                        </ul>
+
+                                        <div style="font-size: 14px; font-weight: 800; color: var(--accent-purple); margin-bottom: 5px;">สำหรับสินค้าสำเร็จรูป (ไม่มีขั้นต่ำ)</div>
+                                        <ul style="margin: 0; padding-left: 15px; font-size: 11px; color: var(--text-main); font-weight: 500;">
+                                            <li>สำหรับสินค้าสำเร็จรูป <u>จะไม่มีการทำตัวอย่างก่อนผลิต</u> โดยการผลิตจะเริ่มหลังจากยืนยันออเดอร์และใช้เวลาประมาณ 5-10 วัน</li>
+                                            <li>ออเดอร์ที่ไม่มีขั้นต่ำ ไม่สามารถล็อกจำนวนสินค้าไว้ล่วงหน้าได้ เนื่องจากปริมาณการผลิตอาจมีการเปลี่ยนแปลง</li>
+                                            <li>เมื่อยืนยันออเดอร์แล้ว ไม่สามารถยกเลิกหรือขอคืนเงินได้ ยกเว้นกรณีที่สินค้า ชำรุดหรือมีตำหนิ</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    } 
+                    
+                    let revHtml = '';
+                    if (o.status === 'Sampling Stage' || o.status === 'PP Rejected' || o.status === 'Shipped') {
+                        let historyItems = '';
+                        if (o.revCount > 0 && o.revHistory.length > 0) {
+                            o.revHistory.forEach(r => {
+                                let rDate = formatDateTimeWithTime(r.rejectDate);
+                                historyItems += `<div style="font-size: 12px; color: var(--text-main); margin-bottom: 4px; line-height: 1.4;">• <span style="color:var(--accent-red); font-weight:bold;">Revision ${r.round} (Not Approved)</span> : ${r.rejectReason} ${rDate !== '-' ? `(${rDate})` : ''}</div>`;
+                                if(r.fixDetail) {
+                                    historyItems += `<div style="font-size: 12px; color: var(--accent-green); margin-bottom: 8px; padding-left: 10px; font-weight:600;">• Revised : ${r.fixDetail}</div>`;
+                                } else if (o.status === 'PP Rejected') {
+                                    historyItems += `<div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; padding-left: 10px; font-weight:600;">⏳ กำลังรอฝ่ายผลิตแก้ไข ...</div>`;
+                                }
+                            });
+                            historyItems += `<div style="border-top: 1px dashed var(--border-color); margin: 15px 0 15px 0;"></div>`;
+                        }
+
+                        if (o.status === 'Sampling Stage') {
+                            let imageUrls = [];
+                            if (o.sampleImage && o.sampleImage !== '-') {
+                                imageUrls = o.sampleImage.split(',').map(u => u.trim());
+                            }
+                            
+                            let latestSamples = imageUrls.slice(-5);
+
+                            let gridHtml = '<div class="flex-row" style="gap: 8px; margin-bottom: 20px;">';
+                            for (let i = 0; i < 5; i++) {
+                                if (i < latestSamples.length && latestSamples[i]) {
+                                    let thumbUrl = getSafeImageUrl(latestSamples[i]) || latestSamples[i];
+                                    gridHtml += `
+                                    <div style="flex:1; aspect-ratio:1; border-radius:12px; background:#F4F7FE; overflow:hidden; position:relative; border:1px solid var(--border-color);">
+                                        <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="window.open('${latestSamples[i]}', '_blank')" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/222222/FFFFFF?text=Img';">
+                                        ${i === 0 ? `<div style="position:absolute; bottom:4px; left:4px; background: rgba(255,255,255,0.8); color:var(--text-main); font-size:10px; padding: 2px 4px; border-radius: 4px;"><i class="fas fa-expand-arrows-alt"></i></div>` : ''}
+                                    </div>`;
+                                } else {
+                                    gridHtml += `
+                                    <div style="flex:1; aspect-ratio:1; border-radius:12px; overflow:hidden; border:1px solid var(--border-color); background: #F8F9FA; display:flex; justify-content:center; align-items:center; flex-direction:column;">
+                                        <i class="fas fa-image" style="color:var(--text-muted); font-size:16px;"></i>
+                                    </div>`;
+                                }
+                            }
+                            gridHtml += '</div>';
+
+                            let alertBoxHtml = `
+                            <div style="background: #FFF9E6; border: 1px solid var(--accent-yellow); border-radius: 12px; padding: 12px 15px; margin-bottom: 15px; display:flex; gap: 12px; align-items:center; box-shadow: 0 4px 10px rgba(255, 206, 32, 0.1);">
+                                <div style="width:32px; height:32px; border-radius:50%; background: #FFF; border:1px solid var(--accent-yellow); color:var(--accent-yellow); display:flex; justify-content:center; align-items:center; flex-shrink:0;">
+                                    <i class="fas fa-exclamation"></i>
+                                </div>
+                                <div>
+                                    <div style="color:#B8860B; font-size:13px; font-weight:800; line-height:1.3;">ตัวอย่างจัดส่งแล้ว กรุณาตรวจสอบ</div>
+                                    <div style="color:#B8860B; font-size:11px; font-weight:600; line-height:1.3;">Sample has shipped. Please review.</div>
+                                </div>
+                            </div>`;
+
+                            let actionButtonsHtml = `
+                            <div class="flex-row">
+                                <button class="btn" style="background:var(--accent-green); color:#FFF; flex:1; font-size:12px; border-radius:12px; font-weight:800; white-space:nowrap; padding: 12px 2px; box-shadow: 0 4px 15px rgba(5, 205, 153, 0.3);" onclick="approveAction('${o.orderNo}')">
+                                    <i class="far fa-check-circle"></i> อนุมัติ / Approve
+                                </button>
+                                <button class="btn" style="background:#FFF; border:1px solid var(--accent-red); color:var(--accent-red); flex:1; font-size:12px; border-radius:12px; font-weight:800; white-space:nowrap; padding: 12px 2px;" onclick="openRejectModal('${o.orderNo}')">
+                                    ไม่อนุมัติ / Reject
+                                </button>
+                            </div>`;
+
+                            revHtml = `<div style="margin-top: 15px; padding-top:15px; border-top: 1px dashed var(--border-color);">${historyItems ? `<div style="color: var(--accent-purple); font-size: 13px; font-weight: 800; margin-bottom: 10px;"><i class="fas fa-history"></i> Revision History (${o.revCount} time)</div>${historyItems}` : ''}${alertBoxHtml}${gridHtml}${actionButtonsHtml}</div>`;
+                            
+                        } else if (o.status === 'PP Rejected') {
+                            revHtml = `
+                            <div style="margin-top: 20px;">
+                                <div style="border: 1px solid var(--accent-red); border-radius: 12px; padding: 15px; background: #FEECEB;">
+                                    <div style="display:flex; align-items:center; gap: 10px; margin-bottom: 12px;">
+                                        <div style="width:28px; height:28px; border-radius:50%; background: #FFF; border:1px solid var(--accent-red); color:var(--accent-red); display:flex; justify-content:center; align-items:center; flex-shrink:0;">
+                                            <i class="fas fa-times"></i>
+                                        </div>
+                                        <div style="color: var(--accent-red); font-size: 14px; font-weight: 800;">Revision History (${o.revCount} time${o.revCount > 1 ? 's' : ''})</div>
+                                    </div>
+                                    ${historyItems}
+                                </div>
+                                <div style="border-top: 1px dashed var(--border-color); margin: 20px 10px;"></div>
+                                <div style="text-align:center; color:var(--accent-purple); font-size:14px; font-weight:800; margin-top:15px; margin-bottom:5px;">โรงงานกำลังดำเนินการแก้ไขตัวแบบ</div>
+                            </div>`;
+                            
+                        } else if (o.status === 'Shipped') {
+                             let shipGallery = '';
+                             if (o.shipImage && o.shipImage !== '-') {
+                                 let shipThumb = getSafeImageUrl(o.shipImage) || o.shipImage;
+                                 shipGallery = `<div class="flex-row" style="overflow-x: auto; margin-bottom: 15px;"><div style="width: 70px; height: 70px; border-radius: 12px; flex-shrink: 0; background: #FFF; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.05);"><img src="${shipThumb}" style="width:100%; height:100%; object-fit:cover;" onclick="window.open('${o.shipImage}', '_blank')" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/222222/FFFFFF?text=Img';"></div></div>`;
+                             }
+                             revHtml = `<div style="border: 1px solid var(--accent-green); border-radius: 16px; padding: 15px; margin-top: 20px; background: #E4F9F2; box-shadow: 0 4px 15px rgba(5, 205, 153, 0.1);"><div style="color: var(--accent-green); font-size: 14px; font-weight: 800; margin-bottom: 10px;"><i class="fas fa-check-circle"></i> Delivered</div>${shipGallery}<div style="text-align:center; color:var(--accent-green); font-size:15px; font-weight:800;">Thank you for using SMART FACTORY SYSTEM</div></div>`;
+                        }
+                    }
+
+                    cardHtml += `<div class="card-body-collapse open" style="padding:0 20px 20px 20px; border-top:1px solid var(--border-color); background: #FFF;">${detailBox}${stepperHtml}${actionHtml}${revHtml}</div>`;
+                }
+
+                cardHtml += `</div>`;
+                html += cardHtml;
+            });
+            container.innerHTML = html;
+
+            updateCustomerBanner(activeOrder || orders[0]);
+
+            document.getElementById('statConfirmed').innerText = cPrep;
+            document.getElementById('statInProd').innerText = cProd;
+            document.getElementById('statDelivered').innerText = cDeliv;
+        }
+
+        function fetchCustomerOrders() { 
+            callBackend('get_my_orders', { userId: userProfile.userId }, (res) => { 
+                globalOrders = res.orders; 
+                filterOrders(); 
+            }); 
+        }
+
+        // ================= EDIT PROFILE FOR CUSTOMER =================
+        function toggleShippingForm() {
+            const isChecked = document.getElementById('cbSameAsBill').checked;
+            document.getElementById('shipAddressFields').style.display = isChecked ? 'none' : 'block';
+        }
+
+        function openEditProfile() {
+            try {
+                document.getElementById('epPic').src = userProfile.pictureUrl || 'https://via.placeholder.com/100';
+                document.getElementById('epHeaderName').innerText = dbUserData.RealName || 'User';
+                document.getElementById('epHeaderId').innerText = "ID: " + (dbUserData.CustomerID || '-');
+
+                document.getElementById('epName').value = dbUserData.RealName || '';
+                document.getElementById('epBrand').value = dbUserData.BrandName || '';
+                document.getElementById('epPhone').value = dbUserData.Phone || '';
+                document.getElementById('epEmail').value = dbUserData.Email || '';
+
+                document.getElementById('epBillCompany').value = dbUserData.BillCompany || '';
+                document.getElementById('epBillTax').value = dbUserData.BillTaxId || '';
+                document.getElementById('epBillAddress').value = dbUserData.BillAddress || '';
+                document.getElementById('epBillCity').value = dbUserData.BillCity || '';
+                document.getElementById('epBillProv').value = dbUserData.BillProvince || '';
+                document.getElementById('epBillZip').value = dbUserData.BillZip || '';
+                document.getElementById('epBillCountry').value = dbUserData.BillCountry || 'Thailand';
+
+                document.getElementById('epShipName').value = dbUserData.ShipName || '';
+                document.getElementById('epShipPhone').value = dbUserData.ShipPhone || '';
+                document.getElementById('epShipAddress').value = dbUserData.ShipAddress || '';
+                document.getElementById('epShipCity').value = dbUserData.ShipCity || '';
+                document.getElementById('epShipProv').value = dbUserData.ShipProvince || '';
+                document.getElementById('epShipZip').value = dbUserData.ShipZip || '';
+                document.getElementById('epShipCountry').value = dbUserData.ShipCountry || 'Thailand';
+
+                if (dbUserData.ShipLocation && typeof dbUserData.ShipLocation === 'string') {
+                    document.getElementById('epLocation').value = dbUserData.ShipLocation;
+                    const c = dbUserData.ShipLocation.split(','); 
+                    if(c.length === 2) {
+                        document.getElementById('mapDisplay').innerHTML = `<iframe src="https://maps.google.com/maps?q=${c[0].trim()},${c[1].trim()}&z=15&output=embed" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
+                    }
+                } else {
+                    document.getElementById('mapDisplay').innerHTML = '';
+                }
+
+                document.getElementById('cbSameAsBill').checked = false; toggleShippingForm();
+                document.getElementById('viewApp').classList.add('hidden'); 
+                document.getElementById('viewEditProfile').classList.add('show'); 
+                window.scrollTo(0,0);
+            } catch (err) { console.error("Profile Load Error"); }
+        }
+
+        function closeEditProfile() { 
+            document.getElementById('viewEditProfile').classList.remove('show'); 
+            document.getElementById('viewApp').classList.remove('hidden'); 
+        }
+
+        function saveProfile() {
+            const isSameAsBill = document.getElementById('cbSameAsBill').checked;
+            const payload = { 
+                userId: userProfile.userId, 
+                realName: document.getElementById('epName').value, brandName: document.getElementById('epBrand').value, 
+                phone: document.getElementById('epPhone').value, email: document.getElementById('epEmail').value, 
+                
+                billCompany: document.getElementById('epBillCompany').value, billTaxId: document.getElementById('epBillTax').value,
+                billAddress: document.getElementById('epBillAddress').value, billCity: document.getElementById('epBillCity').value,
+                billProvince: document.getElementById('epBillProv').value, billZip: document.getElementById('epBillZip').value, billCountry: document.getElementById('epBillCountry').value,
+                
+                shipName: isSameAsBill ? (document.getElementById('epBillCompany').value || document.getElementById('epName').value) : document.getElementById('epShipName').value,
+                shipPhone: isSameAsBill ? document.getElementById('epPhone').value : document.getElementById('epShipPhone').value,
+                shipAddress: isSameAsBill ? document.getElementById('epBillAddress').value : document.getElementById('epShipAddress').value,
+                shipCity: isSameAsBill ? document.getElementById('epBillCity').value : document.getElementById('epShipCity').value,
+                shipProvince: isSameAsBill ? document.getElementById('epBillProv').value : document.getElementById('epShipProv').value,
+                shipZip: isSameAsBill ? document.getElementById('epBillZip').value : document.getElementById('epShipZip').value,
+                shipCountry: isSameAsBill ? document.getElementById('epBillCountry').value : document.getElementById('epShipCountry').value,
+                shipLocation: document.getElementById('epLocation').value
+            };
+
+            if(!payload.realName || !payload.phone) return alert("Please fill in all required fields.");
+
+            callBackend('update_profile', payload, (res) => { 
+                if(res.status === 'success') { alert("Profile saved successfully!"); closeEditProfile(); checkUser(); } 
+                else { alert("Error: " + res.message); }
+            });
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                document.getElementById('epLocation').value = "กำลังค้นหา...";
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        let lat = pos.coords.latitude; let lng = pos.coords.longitude;
+                        document.getElementById('epLocation').value = `${lat},${lng}`;
+                        
+                        document.getElementById('mapDisplay').innerHTML = `<iframe src="https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen></iframe>`;
+                    },
+                    () => { 
+                        alert("Please allow location access in your browser or LINE app settings."); 
+                        document.getElementById('epLocation').value = ""; 
+                    },
+                    { enableHighAccuracy: true }
+                );
+            } else { alert("GPS is not supported on this device."); }
+        }
+
+        function openMap() {
+            let loc = document.getElementById('epLocation').value;
+            if (loc && loc !== "กำลังค้นหา...") { 
+                window.open(`https://maps.google.com/maps?q=${loc}`, '_blank'); 
+            } 
+            else { alert("Please click 'My Location' to get coordinates first."); }
+        }
+
+        // ================= ACTIONS & MODALS =================
+
+        function confirmWOAction(no) { callBackend('update_status', { orderNo: no, actionType: 'CUST_CONFIRM_WO' }, () => fetchCustomerOrders()); }
+        function approveAction(no) { callBackend('update_status', { orderNo: no, actionType: 'PP_APPROVE' }, () => fetchCustomerOrders()); }
+        function openRejectModal(no) { document.getElementById('rejOrderNo').value = no; document.getElementById('rejReason').value = ''; document.getElementById('modalReject').classList.add('show'); }
+        function confirmReject() { 
+            const no = document.getElementById('rejOrderNo').value; const r = document.getElementById('rejReason').value; 
+            if(!r) return; 
+            callBackend('update_status', { orderNo: no, actionType: 'PP_REJECT', reason: r }, () => { closeModal('modalReject'); fetchCustomerOrders(); }); 
+        }
+
+        // --- Modal Logic ---
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
+        }
+
+        function closeModal(id) { 
+            document.getElementById(id).classList.remove('show'); 
+        }
+
+        function switchLang(modalPrefix, lang) {
+            document.getElementById(modalPrefix + '-th').style.display = (lang === 'th') ? 'block' : 'none';
+            document.getElementById(modalPrefix + '-en').style.display = (lang === 'en') ? 'block' : 'none';
+            
+            document.getElementById('btn-' + modalPrefix + '-th').className = (lang === 'th') ? 'btn-lang active' : 'btn-lang';
+            document.getElementById('btn-' + modalPrefix + '-en').className = (lang === 'en') ? 'btn-lang active' : 'btn-lang';
+        }
+
+        // ================= STAFF SECTION =================
+        function fetchStaffData() { callBackend('get_all_orders', {}, (res) => { globalOrders = res.orders; filterStaffList(); }); }
+        function fetchOptions() { 
+            callBackend('get_options', {}, (res) => { 
+                const s = document.getElementById('ordStyle'); const f = document.getElementById('ordFabric'); 
+                s.innerHTML = '<option value="" disabled selected>เลือกทรงเสื้อ...</option>'; f.innerHTML = '<option value="" disabled selected>เลือกชนิดผ้า...</option>'; 
+                res.data.styles.forEach(v => s.innerHTML += `<option value="${v}">${v}</option>`); res.data.fabrics.forEach(v => f.innerHTML += `<option value="${v}">${v}</option>`); 
+            }); 
+        }
+        
+        function createOrder() { 
+            const woInput = document.getElementById('ordWoImage');
+            if (woInput.files.length > 0 && !preloadedImages['wo-new_wo']) {
+                return alert("กำลังอัปโหลดไฟล์ใบสั่งงาน กรุณารอสักครู่แล้วกดบันทึกอีกครั้ง");
+            }
+            
+            let woImg = preloadedImages['wo-new_wo'] || null;
+            const payload = { 
+                adminName: dbUserData.RealName, phone: document.getElementById('ordPhone').value, batch: document.getElementById('ordBatch').value, 
+                style: document.getElementById('ordStyle').value, qty: document.getElementById('ordQty').value, fabric: document.getElementById('ordFabric').value, 
+                deliveryDate: document.getElementById('ordDate').value, detail: document.getElementById('ordDetail').value, address: '-', woImage: woImg 
+            };
+            if(!payload.phone || !payload.batch) return alert("กรุณาระบุเบอร์โทรและ Batch"); 
+            callBackend('create_order', payload, (res) => { 
+                if(res.status === 'success') { alert("สร้างออเดอร์เรียบร้อย!"); location.reload(); } else { alert(res.message); }
+            }); 
+        }
+
+        function filterStaffList() {
+            const search = document.getElementById('staffSearch').value.toLowerCase();
+            const filter = document.getElementById('staffStatusFilter').value;
+            let filtered = globalOrders;
+            
+            if(filter === 'ACTIVE') filtered = filtered.filter(o => o.status !== 'Shipped');
+            else if(filter !== 'ALL') filtered = filtered.filter(o => o.status === filter);
+            
+            if (search) filtered = filtered.filter(o => o.orderNo.toLowerCase().includes(search) || (o.custName && o.custName.toLowerCase().includes(search)) || (o.custPhone && o.custPhone.includes(search)));
+
+            const list = document.getElementById('staffTaskList');
+            if(filtered.length === 0) { list.innerHTML = '<div class="order-card text-center" style="color:var(--text-muted); padding:40px; font-weight:600;">ไม่มีงานในระบบ</div>'; return; }
+
+            let html = ''; const role = dbUserData.Role;
+            filtered.forEach(o => {
+                let btns = '';
+                let origThumbUrl = o.woUrl !== '-' ? o.woUrl : null;
+                let displayThumbUrl = getSafeImageUrl(origThumbUrl);
+                
+                // --- ส่วนประวัติและภาพ Sample (Staff History & Samples) ---
+                let staffHistoryHtml = '';
+                let hasHistoryOrImages = false;
+
+                // 1. Grid ภาพ Sample 5 รูปล่าสุด
+                let imageUrls = [];
+                if (o.sampleImage && o.sampleImage !== '-') {
+                    imageUrls = o.sampleImage.split(',').map(u => u.trim());
+                }
+                if (imageUrls.length > 0) {
+                    hasHistoryOrImages = true;
+                    let latestSamples = imageUrls.slice(-5);
+                    let gridHtml = '<div style="margin-bottom: 15px;"><div style="font-size: 13px; font-weight: 800; color: var(--accent-purple); margin-bottom: 10px;"><i class="fas fa-images"></i> ภาพตัวอย่าง 5 รูปล่าสุด (Sample Images)</div><div class="flex-row" style="gap: 8px;">';
+                    for (let i = 0; i < 5; i++) {
+                        if (i < latestSamples.length && latestSamples[i]) {
+                            let thumbUrl = getSafeImageUrl(latestSamples[i]) || latestSamples[i];
+                            gridHtml += `
+                            <div style="flex:1; aspect-ratio:1; border-radius:8px; background:#F4F7FE; overflow:hidden; position:relative; border:1px solid var(--border-color);">
+                                <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="window.open('${latestSamples[i]}', '_blank')" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/222222/FFFFFF?text=Img';">
+                            </div>`;
+                        } else {
+                            gridHtml += `
+                            <div style="flex:1; aspect-ratio:1; border-radius:8px; overflow:hidden; border:1px solid var(--border-color); background: #F8F9FA; display:flex; justify-content:center; align-items:center;">
+                                <i class="fas fa-image" style="color:var(--text-muted); font-size:16px;"></i>
+                            </div>`;
+                        }
+                    }
+                    gridHtml += '</div></div>';
+                    staffHistoryHtml += gridHtml;
+                }
+
+                // 2. ประวัติการอัปเดตสถานะงาน (ใครทำ อะไร เมื่อไหร่)
+                if (o.actionLogs && o.actionLogs.length > 0) {
+                    hasHistoryOrImages = true;
+                    let logContent = '<div style="font-size: 13px; font-weight: 800; color: var(--accent-purple); margin-bottom: 10px;"><i class="fas fa-list"></i> ประวัติการอัปเดตสถานะ (Status Logs)</div>';
+                    o.actionLogs.forEach(log => {
+                        let lDate = formatDateTimeWithTime(log.date);
+                        logContent += `<div style="font-size: 12px; color: var(--text-main); margin-bottom: 6px; display: flex; align-items: flex-start; gap: 8px; font-weight:500;">
+                            <div style="color:var(--accent-green); width: 10px; font-weight:bold;">•</div>
+                            <div><b>${log.status}</b> <span style="color:var(--text-muted);">by ${log.by}</span><br><span style="font-size:10px; color:var(--text-muted); font-weight:600;">${lDate}</span></div>
+                        </div>`;
+                    });
+                    staffHistoryHtml += `<div style="margin-bottom: 15px;">${logContent}</div>`;
+                }
+
+                // 3. ประวัติการตีกลับและแก้ไขแบบ (Revision History)
+                if (o.revCount > 0 && o.revHistory.length > 0) {
+                    hasHistoryOrImages = true;
+                    let revContent = '<div style="font-size: 13px; font-weight: 800; color: var(--accent-purple); margin-bottom: 10px; border-top: 1px dashed var(--border-color); padding-top:15px;"><i class="fas fa-undo"></i> ประวัติการตีกลับและแก้ไข (Revision History)</div>';
+                    o.revHistory.forEach(r => {
+                        let rDate = formatDateTimeWithTime(r.rejectDate);
+                        revContent += `<div style="background: #FEECEB; border-left: 4px solid var(--accent-red); padding: 10px 12px; margin-bottom: 10px; border-radius: 6px;">
+                            <div style="font-size: 12px; color: var(--text-main); font-weight:500;"><b>ลูกค้าไม่อนุมัติ (Rev.${r.round})</b> • <span style="color:var(--text-muted);">${rDate}</span></div>
+                            <div style="font-size: 13px; color: var(--text-main); margin-top: 4px; font-weight:700;">เหตุผล: ${r.rejectReason}</div>`;
+                        if (r.fixDetail) {
+                            let fDate = formatDateTimeWithTime(r.fixDate);
+                            revContent += `<div style="margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                                <div style="font-size: 12px; color: var(--text-main); font-weight:500;"><b>แก้ไขโดย: ${r.fixBy}</b> • <span style="color:var(--text-muted);">${fDate}</span></div>
+                                <div style="font-size: 13px; color: var(--accent-green); margin-top: 4px; font-weight:700;">รายละเอียด: ${r.fixDetail}</div>
+                            </div>`;
+                        }
+                        revContent += `</div>`;
+                    });
+                    staffHistoryHtml += revContent;
+                }
+
+                let collapsibleHistory = '';
+                if (hasHistoryOrImages) {
+                    collapsibleHistory = `
+                    <div style="margin-top: 15px; border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 15px; background: #FFF;">
+                        <div onclick="const content = this.nextElementSibling; content.classList.toggle('hidden'); const icon = this.querySelector('i.fa-chevron-down, i.fa-chevron-up'); icon.classList.toggle('fa-chevron-down'); icon.classList.toggle('fa-chevron-up');" style="padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #F8F9FA;">
+                            <span style="font-size: 13px; font-weight: 800; color: var(--accent-purple);"><i class="fas fa-history" style="margin-right: 8px;"></i> ดูภาพ Sample & ประวัติการทำรายการ</span>
+                            <i class="fas fa-chevron-down" style="color: var(--text-muted); transition: 0.3s;"></i>
+                        </div>
+                        <div class="hidden" style="padding: 20px; background: #FFF;">
+                            ${staffHistoryHtml}
+                        </div>
+                    </div>`;
+                }
+
+                if (['Admin', 'Production Manager', 'Sales Coordinators', 'Sale Coordinator'].includes(role)) {
+                    if (o.status === 'Order Confirmation') btns += `<button class="btn btn-outline" style="margin-top:10px; border-width:2px; font-weight:800;" onclick="updateStatus('${o.orderNo}', 'WO_APPROVE')">อนุมัติ Work Order</button>`;
+                    if (o.status === 'Pre-Production Approved') btns += `<button class="btn btn-outline" style="margin-top:10px; border-width:2px; font-weight:800;" onclick="updateStatus('${o.orderNo}', 'UPDATE_50')">แจ้งผลิตเสร็จ 50%</button>`;
+                    if (o.status === 'Correction Needed') btns += `<div style="color:var(--accent-red); margin-top:10px; font-size:12px; font-weight:600; background:#FEECEB; padding:10px; border-radius:8px;">ตีกลับ: ${o.feedback}</div><button class="btn btn-green" style="margin-top:10px; font-weight:800; box-shadow: 0 4px 15px rgba(5, 205, 153, 0.2);" onclick="updateStatus('${o.orderNo}', 'SUBMIT_FIX')">แก้เสร็จแล้ว ส่ง QC ใหม่</button>`;
+                }
+
+                if (['Admin', 'Merchandiser', 'Sales Admin', 'Sale Admin', 'Sales Coordinators', 'Sale Coordinator'].includes(role)) {
+                    if (o.status === 'Work Order Review Stage') {
+                        btns += `
+                        <div style="background:#F8F9FA; padding:20px; border-radius:16px; margin-top:15px; border: 1px solid var(--border-color);">
+                            <label class="input-label" style="margin-top:0; font-weight:800; font-size:12px; color:var(--accent-purple);"><i class="fas fa-paper-plane"></i> จัดส่งตัวอย่าง (PP Sample)</label>
+                            
+                            <select id="del-s-${o.orderNo}" class="dark-input" onchange="toggleDelivery('${o.orderNo}', this.value, 's')" style="margin-bottom:12px; padding:12px; background:#FFF; border:1px solid var(--border-color); color:var(--text-main); font-weight:600;"><option value="Parcel">ส่งพัสดุ (J&T)</option><option value="Messenger">แมสเซ็นเจอร์</option></select>
+                            
+                            <div id="box-track-s-${o.orderNo}"><input type="text" id="track-s-${o.orderNo}" class="dark-input" placeholder="Tracking No" style="margin-bottom:12px; padding:12px; background:#FFF; border:1px solid var(--border-color);"></div>
+                            <div id="box-phone-s-${o.orderNo}" style="display:none;"><input type="tel" id="phone-s-${o.orderNo}" class="dark-input" placeholder="เบอร์แมสเซ็นเจอร์" style="margin-bottom:12px; padding:12px; background:#FFF; border:1px solid var(--border-color);"></div>
+                            
+                            <label class="input-label" style="font-weight:700;">แนบรูปตัวอย่าง (Sample) <span style="color:var(--accent-red)">*บังคับ</span></label>
+                            <input type="file" id="file-sample-${o.orderNo}" accept="image/*" onchange="processImage(this, '${o.orderNo}', 'sample')" style="background:#FFF; color:var(--text-main); font-size:12px; padding:10px; margin-bottom:12px; border:1px dashed var(--accent-purple);">
+                            <div id="status-sample-${o.orderNo}" style="font-size:12px; margin-top:-5px; margin-bottom:10px; display:none; font-weight:600;"></div>
+                            
+                            <label class="input-label" style="font-weight:700;">แนบรูปพัสดุ (Parcel) <span style="color:var(--accent-red)">*บังคับ</span></label>
+                            <input type="file" id="file-parcel-${o.orderNo}" accept="image/*" onchange="processImage(this, '${o.orderNo}', 'parcel')" style="background:#FFF; color:var(--text-main); font-size:12px; padding:10px; border:1px dashed var(--accent-purple);">
+                            <div id="status-parcel-${o.orderNo}" style="font-size:12px; margin-top:5px; display:none; font-weight:600;"></div>
+                            
+                            <button class="btn btn-outline" id="btn-s-${o.orderNo}" style="margin-top:20px; font-weight:800; border-width:2px;" onclick="sendSample('${o.orderNo}')">แจ้งส่งตัวอย่าง</button>
+                        </div>`;
+                    }
+                    if (o.status === 'PP Rejected') {
+                         btns += `
+                         <div style="background:#FEECEB; border: 1px solid var(--accent-red); padding: 15px; border-radius: 12px; margin-top: 15px;">
+                            <div style="color:var(--accent-red); font-size:13px; font-weight:800; margin-bottom: 5px;">ลูกค้าไม่อนุมัติ:</div>
+                            <div style="color:var(--text-main); font-size:13px; font-weight:600; margin-bottom: 15px;">${o.ppFeedback}</div>
+                            <button class="btn" style="background:#FFF; border:2px solid var(--accent-yellow); color:#B8860B; font-weight:800; box-shadow:0 4px 10px rgba(255,206,32,0.1);" onclick="openFixPP('${o.orderNo}')"><i class="fas fa-tools"></i> บันทึกการแก้ไขแบบ</button>
+                         </div>`;
+                    }
+                }
+
+                if (['Admin', 'Quality Control', 'Sales Coordinators', 'Sale Coordinator'].includes(role)) {
+                    if (o.status === 'Bulk Production (50%)') {
+                        btns += `<div class="flex-row" style="margin-top:20px;">
+                            <button class="btn btn-green" style="flex:1; font-weight:800; font-size:13px; box-shadow: 0 4px 15px rgba(5, 205, 153, 0.2);" onclick="updateStatus('${o.orderNo}', 'QC_PASS')"><i class="fas fa-check"></i> ผ่าน QC</button>
+                            <button class="btn btn-outline" style="flex:1; font-weight:800; font-size:13px; border-color:var(--accent-red); color:var(--accent-red);" onclick="openFeedback('${o.orderNo}')"><i class="fas fa-undo"></i> ตีกลับ PM</button>
+                        </div>`;
+                    }
+                }
+
+                if (['Admin', 'Sales Admin', 'Sale Admin', 'Sales Coordinators', 'Sale Coordinator'].includes(role)) {
+                    if (o.status === 'Quality Control Passed') {
+                        btns += `
+                        <div style="background:#F8F9FA; padding:20px; border-radius:16px; margin-top:15px; border: 1px solid var(--border-color);">
+                            <label class="input-label" style="margin-top:0; font-weight:800; font-size:12px; color:var(--accent-green);"><i class="fas fa-box"></i> จัดส่งสินค้าจริง</label>
+                            
+                            <select id="del-ship-${o.orderNo}" class="dark-input" onchange="toggleDelivery('${o.orderNo}', this.value, 'ship')" style="margin-bottom:12px; padding:12px; background:#FFF; border:1px solid var(--border-color); color:var(--text-main); font-weight:600;"><option value="Parcel">ส่งพัสดุ (J&T)</option><option value="Messenger">แมสเซ็นเจอร์</option></select>
+                            
+                            <div id="box-track-ship-${o.orderNo}"><input type="text" id="track-ship-${o.orderNo}" class="dark-input" placeholder="Tracking No" style="margin-bottom:12px; padding:12px; background:#FFF; border:1px solid var(--border-color);"></div>
+                            <div id="box-phone-ship-${o.orderNo}" style="display:none;"><input type="tel" id="phone-ship-${o.orderNo}" class="dark-input" placeholder="เบอร์แมสเซ็นเจอร์" style="margin-bottom:12px; padding:12px; background:#FFF; border:1px solid var(--border-color);"></div>
+                            
+                            <label class="input-label" style="font-weight:700;">แนบรูปลัง/สลิป</label>
+                            <input type="file" id="file-ship-${o.orderNo}" accept="image/*" onchange="processImage(this, '${o.orderNo}', 'ship')" style="background:#FFF; color:var(--text-main); font-size:12px; padding:10px; border:1px dashed var(--accent-green);">
+                            <div id="status-ship-${o.orderNo}" style="font-size:12px; margin-top:5px; display:none; font-weight:600;"></div>
+                            
+                            <button class="btn btn-green" id="btn-ship-${o.orderNo}" style="margin-top:20px; font-weight:800; box-shadow: 0 4px 15px rgba(5, 205, 153, 0.3);" onclick="shipOrder('${o.orderNo}')"><i class="fas fa-paper-plane"></i> ยืนยันจัดส่งสินค้า</button>
+                        </div>`;
+                    } else if (o.status === 'Shipped') {
+                        let delText = o.deliveryMethod === 'Messenger' ? `Messenger: ${o.messengerPhone}` : `J&T: ${o.tracking}`;
+                        btns += `<div style="margin-top:15px; font-size:14px; color:var(--accent-green); text-align:center; background:#E4F9F2; padding:12px; border-radius:12px; font-weight:800; border: 1px solid var(--accent-green);"><i class="fas fa-check-circle"></i> จัดส่งแล้ว (${delText})</div>`;
+                    }
+                }
+
+                html += `
+                <div class="order-card">
+                    <div class="flex-between" style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom:15px;">
+                        <strong style="color:var(--text-main); font-size:16px; font-weight:800;">${o.orderNo}</strong>
+                        <div style="color:var(--accent-purple); font-size:12px; font-weight:800; background: #E4E7FE; padding: 4px 10px; border-radius: 8px;">${o.status}</div>
+                    </div>
+                    <div class="flex-row" style="align-items:flex-start;">
+                        <div style="flex:1; font-size:13px; color:var(--text-main); font-weight: 500;">
+                            <div style="margin-bottom:8px; display:flex; align-items:center;">
+                                <i class="fas fa-user-circle" style="color:var(--text-muted); margin-right:5px; font-size:16px;"></i> 
+                                <b style="color:var(--text-main); font-weight:800;">${o.custName}</b> 
+                                <span style="background:var(--accent-yellow); color:#856404; font-size:10px; font-weight:700; padding:2px 8px; border-radius:6px; margin-left:8px;">${o.tier}</span> 
+                            </div>
+                            <div style="margin-bottom:6px; margin-left: 21px;"><a href="tel:${o.custPhone}" style="color:var(--accent-purple); font-weight:700; text-decoration:none;"><i class="fas fa-phone-alt"></i> ${o.custPhone}</a></div>
+                            <div style="margin-bottom:6px; margin-left: 21px; color:var(--text-muted);">Sales Owner: <span style="color:var(--text-main); font-weight:700;">${o.salesOwner}</span></div>
+                            <div style="margin-bottom:6px; margin-left: 21px; color:var(--text-muted);">Style: <span style="color:var(--text-main); font-weight:700;">${o.style}</span> <span style="color:var(--accent-purple); font-weight:800;">(${o.qty} pcs)</span></div>
+                            <div style="margin-bottom:6px; margin-left: 21px; color:var(--text-muted);">Batch: <span style="color:var(--text-main); font-weight:700;">${o.batch}</span></div>
+                            <div style="margin-left: 21px; color:var(--text-muted);">Est Delivery: <span style="color:var(--text-main); font-weight:700;">${o.delivery}</span></div>
+                        </div>
+                        ${origThumbUrl ? `<div style="width: 70px; height: 70px; border-radius: 12px; overflow:hidden; background:#F8F9FA; border: 1px solid var(--border-color); flex-shrink:0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                            <img src="${displayThumbUrl || origThumbUrl}" style="width:100%; height:100%; object-fit:cover; cursor:pointer;" onclick="window.open('${origThumbUrl}', '_blank')" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/222222/FFFFFF?text=WO';">
+                        </div>` : ''}
+                    </div>
+                    ${collapsibleHistory}
+                    ${btns}
+                </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        // --- Actions Staff ---
+        function toggleDelivery(no, method, type) { 
+            document.getElementById(`box-track-${type}-${no}`).style.display = method === 'Messenger' ? 'none' : 'block'; 
+            document.getElementById(`box-phone-${type}-${no}`).style.display = method === 'Messenger' ? 'block' : 'none'; 
+        }
+        function updateStatus(no, action) { 
+            if(!confirm('ยืนยันทำรายการ?')) return; 
+            callBackend('update_status', { orderNo: no, actionType: action, staffName: dbUserData.RealName }, () => fetchStaffData()); 
+        }
+        function openFeedback(no) { document.getElementById('fbOrderNo').value = no; document.getElementById('modalFeedback').classList.add('show'); }
+        function openFixPP(no) { document.getElementById('fixPPOrderNo').value = no; document.getElementById('modalFixPP').classList.add('show'); }
+        function confirmRollback() { 
+            const no = document.getElementById('fbOrderNo').value; const reason = document.getElementById('fbReason').value; 
+            if(!reason) return alert("ระบุสาเหตุ"); 
+            callBackend('update_status', { orderNo: no, actionType: 'ROLLBACK', reason: reason, staffName: dbUserData.RealName }, () => { closeModal('modalFeedback'); fetchStaffData(); }); 
+        }
+        function confirmFixPP() { 
+            const no = document.getElementById('fixPPOrderNo').value; const detail = document.getElementById('fixPPDetail').value; 
+            if(!detail) return alert("ระบุรายละเอียดการแก้ไข"); 
+            callBackend('update_status', { orderNo: no, actionType: 'FIX_PP_REJECT', fixDetail: detail, staffName: dbUserData.RealName }, () => { closeModal('modalFixPP'); fetchStaffData(); }); 
+        }
+
+        async function sendSample(no) { 
+            const m = document.getElementById(`del-s-${no}`).value; const t = document.getElementById(`track-s-${no}`).value; const p = document.getElementById(`phone-s-${no}`).value; 
+            if(m === 'Parcel' && !t) return alert("ระบุ Tracking"); if(m === 'Messenger' && !p) return alert("ระบุเบอร์แมส"); 
+            
+            const fileSample = document.getElementById(`file-sample-${no}`);
+            const fileParcel = document.getElementById(`file-parcel-${no}`);
+            
+            if (fileSample.files.length === 0) return alert("บังคับแนบรูปตัวอย่าง (Sample) 1 ภาพครับ");
+            if (fileParcel.files.length === 0) return alert("บังคับแนบรูปพัสดุ (Parcel) 1 ภาพครับ");
+
+            if (!preloadedImages[`sample-${no}`] || !preloadedImages[`parcel-${no}`]) {
+                return alert("ระบบกำลังประมวลผลรูปภาพ กรุณารอสักครู่แล้วกดใหม่อีกครั้งครับ");
+            }
+
+            callBackend('update_status', { 
+                orderNo: no, 
+                actionType: 'SEND_SAMPLE', 
+                deliveryMethod: m, 
+                tracking: t, 
+                messengerPhone: p, 
+                sampleImage: preloadedImages[`sample-${no}`], 
+                parcelImage: preloadedImages[`parcel-${no}`], 
+                staffName: dbUserData.RealName 
+            }, () => fetchStaffData()); 
+        }
+
+        async function shipOrder(no) { 
+            const m = document.getElementById(`del-ship-${no}`).value; const t = document.getElementById(`track-ship-${no}`).value; const p = document.getElementById(`phone-ship-${no}`).value; 
+            if(m === 'Parcel' && !t) return alert("ระบุ Tracking"); if(m === 'Messenger' && !p) return alert("ระบุเบอร์แมส"); 
+            
+            const fileInput = document.getElementById(`file-ship-${no}`);
+            if (fileInput && fileInput.files.length > 0 && !preloadedImages[`ship-${no}`]) {
+                return alert("กำลังอัปโหลดรูปภาพ กรุณารอสักครู่แล้วกดยืนยันจัดส่งอีกครั้งครับ");
+            }
+
+            callBackend('update_status', { 
+                orderNo: no, 
+                actionType: 'SHIP', 
+                deliveryMethod: m, 
+                tracking: t, 
+                messengerPhone: p, 
+                parcelImage: preloadedImages[`ship-${no}`] || null, 
+                staffName: dbUserData.RealName 
+            }, () => fetchStaffData()); 
+        }
+    </script>
+</body>
+</html>
